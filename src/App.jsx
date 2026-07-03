@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AppHeader from './components/AppHeader';
 import UploadPage from './pages/UploadPage';
 import AnalysisPage from './pages/AnalysisPage';
 
@@ -17,6 +18,7 @@ export default function App() {
 
   return (
     <div className="app-frame">
+      <AppHeader />
       {step === 'upload' && <UploadPage onUploaded={handleUploaded} />}
       {step === 'analysis' && (
         <AnalysisPage uploadedPhotos={uploadedPhotos} onBack={handleBackToUpload} />

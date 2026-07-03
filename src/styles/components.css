@@ -307,7 +307,7 @@
   background: linear-gradient(
     100deg,
     transparent 0%,
-    rgba(232, 134, 47, 0.25) 45%,
+    rgba(217, 114, 15, 0.22) 45%,
     transparent 90%
   );
   animation: wash-sweep 2.4s ease-in-out infinite;

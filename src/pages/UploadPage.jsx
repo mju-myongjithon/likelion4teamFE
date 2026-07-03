@@ -69,7 +69,7 @@ export default function UploadPage({ onUploaded }) {
   return (
     <div className="screen upload-screen">
       <p className="eyebrow">F1 · 오늘의 기록</p>
-      <h1 className="screen-title">오늘 하루,{'\n'}사진 한 장 남겨볼까요</h1>
+      <h1 className="screen-title">오늘 당신의{'\n'}하루는 어땠나요?</h1>
       <p className="screen-sub">
         일상적인 사진 {MIN_PHOTOS}장이면 충분해요. 잘 나온 사진일 필요는 없어요.
       </p>

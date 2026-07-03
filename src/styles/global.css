@@ -29,7 +29,7 @@ input:focus-visible,
   display: flex;
   justify-content: center;
   background:
-    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(232, 134, 47, 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(217, 114, 15, 0.05), transparent),
     var(--color-bg);
 }
 
@@ -47,11 +47,36 @@ input:focus-visible,
   flex-direction: column;
 }
 
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-5) var(--sp-5) var(--sp-4);
+  border-bottom: 1px solid var(--color-line-soft);
+}
+
+.app-header__mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(217, 114, 15, 0.16);
+  flex-shrink: 0;
+}
+
+.app-header__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
 .screen {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--sp-6) var(--sp-5) var(--sp-8);
+  padding: var(--sp-5) var(--sp-5) var(--sp-8);
 }
 
 .eyebrow {
@@ -67,10 +92,10 @@ input:focus-visible,
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 28px;
-  line-height: 1.25;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
   color: var(--color-text);
   margin: 0 0 var(--sp-2);
-  font-optical-sizing: auto;
 }
 
 .screen-sub {

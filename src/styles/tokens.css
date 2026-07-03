@@ -3,30 +3,30 @@
    컨셉: 암실(darkroom) + 즉석 필름 — "오늘 하루가 현상되는" 감각
    =================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* --- Color: 암실 안전등 아래의 팔레트 --- */
-  --color-bg: #17140F;
-  --color-bg-elevated: #201B14;
-  --color-paper: #F4EEDF;
-  --color-paper-dim: #E8DFC8;
-  --color-accent: #E8862F;          /* safelight amber */
-  --color-accent-strong: #FF9D42;
-  --color-accent-dim: #8A5A28;
-  --color-match: #86A88A;           /* developed / matched */
-  --color-match-strong: #A8C7AC;
-  --color-line: #3A3226;
-  --color-line-soft: #2A251C;
-  --color-text: #F4EEDF;
-  --color-text-muted: #A79A80;
-  --color-text-faint: #6E6350;
-  --color-ink: #1B1712;             /* text on paper */
-  --color-ink-muted: #574E3D;
-  --color-danger: #D9704F;
+  /* --- Color: 라이트박스 위의 팔레트 --- */
+  --color-bg: #FAF6EC;
+  --color-bg-elevated: #F1E9D6;
+  --color-paper: #FFFFFF;
+  --color-paper-dim: #F5F0E4;
+  --color-accent: #D9720F;          /* safelight amber (화이트 배경 대비용으로 진하게) */
+  --color-accent-strong: #F08927;
+  --color-accent-dim: #F0C79A;
+  --color-match: #5E8264;           /* developed / matched */
+  --color-match-strong: #3F6B47;
+  --color-line: #DDD3BA;
+  --color-line-soft: #EAE3D2;
+  --color-text: #241F16;
+  --color-text-muted: #7A6F5C;
+  --color-text-faint: #A89C84;
+  --color-ink: #241F16;             /* text on paper */
+  --color-ink-muted: #6B6151;
+  --color-danger: #C1573A;
 
   /* --- Typography --- */
-  --font-display: 'Fraunces', 'Georgia', serif;
+  --font-display: 'Zilla Slab', 'Georgia', serif;
   --font-body: 'Inter', -apple-system, sans-serif;
   --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
 
@@ -43,8 +43,8 @@
   /* --- Radius / shadow --- */
   --radius-card: 3px;
   --radius-pill: 999px;
-  --shadow-photo: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
-  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.35);
+  --shadow-photo: 0 8px 20px -6px rgba(36, 31, 22, 0.22);
+  --shadow-soft: 0 2px 10px rgba(36, 31, 22, 0.14);
 
   /* --- Motion --- */
   --ease-develop: cubic-bezier(0.16, 1, 0.3, 1);
