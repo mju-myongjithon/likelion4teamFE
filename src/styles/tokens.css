@@ -1,0 +1,62 @@
+/* ===================================================================
+   Sync.day 디자인 토큰
+   컨셉: 암실(darkroom) + 즉석 필름 — "오늘 하루가 현상되는" 감각
+   =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* --- Color: 암실 안전등 아래의 팔레트 --- */
+  --color-bg: #17140F;
+  --color-bg-elevated: #201B14;
+  --color-paper: #F4EEDF;
+  --color-paper-dim: #E8DFC8;
+  --color-accent: #E8862F;          /* safelight amber */
+  --color-accent-strong: #FF9D42;
+  --color-accent-dim: #8A5A28;
+  --color-match: #86A88A;           /* developed / matched */
+  --color-match-strong: #A8C7AC;
+  --color-line: #3A3226;
+  --color-line-soft: #2A251C;
+  --color-text: #F4EEDF;
+  --color-text-muted: #A79A80;
+  --color-text-faint: #6E6350;
+  --color-ink: #1B1712;             /* text on paper */
+  --color-ink-muted: #574E3D;
+  --color-danger: #D9704F;
+
+  /* --- Typography --- */
+  --font-display: 'Fraunces', 'Georgia', serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+
+  /* --- Spacing scale --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* --- Radius / shadow --- */
+  --radius-card: 3px;
+  --radius-pill: 999px;
+  --shadow-photo: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.35);
+
+  /* --- Motion --- */
+  --ease-develop: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 180ms;
+  --dur-med: 420ms;
+  --dur-slow: 900ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-med: 0ms;
+    --dur-slow: 0ms;
+  }
+}

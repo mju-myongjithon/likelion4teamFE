@@ -1,0 +1,370 @@
+/* ---------- Buttons ---------- */
+.btn-primary,
+.btn-secondary {
+  width: 100%;
+  padding: 16px var(--sp-5);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: transform var(--dur-fast) ease, opacity var(--dur-fast) ease;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-ink);
+}
+
+.btn-primary:disabled {
+  background: var(--color-line);
+  color: var(--color-text-faint);
+  cursor: not-allowed;
+}
+
+.btn-primary:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-line);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.form-error {
+  color: var(--color-danger);
+  font-size: 13px;
+  margin: 0 0 var(--sp-3);
+}
+
+/* ---------- Film strip progress ---------- */
+.film-strip {
+  margin-bottom: var(--sp-5);
+}
+
+.film-strip__sprockets {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--sp-2);
+}
+
+.film-strip__hole {
+  width: 100%;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--color-line);
+  transition: background var(--dur-med) var(--ease-develop);
+}
+
+.film-strip__hole.is-exposed {
+  background: var(--color-accent);
+}
+
+.film-strip__label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.film-strip__count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.film-strip__count.is-ready {
+  color: var(--color-match-strong);
+}
+
+.film-strip__hint {
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+/* ---------- Privacy toggle ---------- */
+.privacy-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-bg-elevated);
+  margin-bottom: var(--sp-4);
+}
+
+.privacy-toggle__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.privacy-toggle__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.privacy-toggle__desc {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.privacy-toggle__switch {
+  flex-shrink: 0;
+  width: 46px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  background: var(--color-line);
+  border: none;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--dur-fast) ease;
+}
+
+.privacy-toggle__switch.is-on {
+  background: var(--color-accent-dim);
+}
+
+.privacy-toggle__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-paper);
+  transition: transform var(--dur-fast) var(--ease-develop);
+}
+
+.privacy-toggle__switch.is-on .privacy-toggle__knob {
+  transform: translateX(20px);
+  background: var(--color-accent-strong);
+}
+
+/* ---------- Photo grid / polaroids ---------- */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-4) var(--sp-3);
+  margin-bottom: var(--sp-6);
+}
+
+.polaroid {
+  position: relative;
+  background: var(--color-paper);
+  padding: 6px 6px 14px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-photo);
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform var(--dur-fast) ease;
+  animation: polaroid-drop var(--dur-med) var(--ease-develop) backwards;
+}
+
+@keyframes polaroid-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) rotate(var(--tilt, 0deg)) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--tilt, 0deg)) scale(1);
+  }
+}
+
+.polaroid__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--color-ink);
+}
+
+.polaroid__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: none;
+  transition: filter var(--dur-fast) ease;
+}
+
+.polaroid__img.is-blurred {
+  filter: blur(6px) saturate(0.9);
+}
+
+.polaroid__privacy-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  background: rgba(23, 20, 15, 0.72);
+  color: var(--color-paper);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.polaroid__remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+
+.polaroid--add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  aspect-ratio: 1 / 1.18;
+  background: transparent;
+  border: 1.5px dashed var(--color-line);
+  border-radius: var(--radius-card);
+  color: var(--color-text-faint);
+  cursor: pointer;
+  transform: none;
+  box-shadow: none;
+  animation: none;
+}
+
+.polaroid--add:hover {
+  border-color: var(--color-accent-dim);
+  color: var(--color-accent);
+}
+
+.polaroid__add-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.polaroid__add-text {
+  font-size: 11px;
+}
+
+/* ---------- Developing tray (F2 loading) ---------- */
+.developing-tray {
+  display: flex;
+  justify-content: center;
+  padding: var(--sp-7) 0;
+}
+
+.developing-photo {
+  position: relative;
+  width: 220px;
+  aspect-ratio: 4 / 5;
+}
+
+.developing-photo__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+  border: 8px solid var(--color-paper);
+  border-bottom-width: 28px;
+  box-shadow: var(--shadow-photo);
+  transform: rotate(calc((var(--i, 0) - 1) * 4deg));
+  filter: brightness(0.4) contrast(0.8);
+  animation: develop var(--dur-slow) var(--ease-develop) forwards;
+  animation-delay: calc(var(--i, 0) * 260ms);
+}
+
+@keyframes develop {
+  0% {
+    filter: brightness(0.15) contrast(0.6) saturate(0.4);
+    opacity: 0.5;
+  }
+  100% {
+    filter: brightness(1) contrast(1) saturate(1);
+    opacity: 1;
+  }
+}
+
+.developing-photo__wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(232, 134, 47, 0.25) 45%,
+    transparent 90%
+  );
+  animation: wash-sweep 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes wash-sweep {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+/* ---------- Trait reveal (F2 result) ---------- */
+.trait-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+}
+
+.trait-reveal__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--sp-4);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  opacity: 0;
+  animation: trait-develop var(--dur-med) var(--ease-develop) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes trait-develop {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.trait-reveal__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.trait-reveal__value {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-align: right;
+}

@@ -1,0 +1,115 @@
+import { useRef, useState } from 'react';
+import PhotoGrid from '../components/PhotoGrid';
+import FilmStrip from '../components/FilmStrip';
+import PrivacyToggle from '../components/PrivacyToggle';
+import { uploadPhotos } from '../api/photoApi';
+
+const MIN_PHOTOS = 3;
+const MAX_PHOTOS = 10;
+
+export default function UploadPage({ onUploaded }) {
+  const [photos, setPhotos] = useState([]);
+  const [isPrivacyMode, setIsPrivacyMode] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState(null);
+  const inputRef = useRef(null);
+
+  const canContinue = photos.length >= MIN_PHOTOS && !isUploading;
+
+  function handleFilesSelected(e) {
+    const incoming = Array.from(e.target.files ?? []);
+    if (incoming.length === 0) return;
+
+    setError(null);
+    setPhotos((prev) => {
+      const room = MAX_PHOTOS - prev.length;
+      const accepted = incoming.slice(0, room);
+      const next = [
+        ...prev,
+        ...accepted.map((file) => ({
+          id: `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
+          file,
+          previewUrl: URL.createObjectURL(file),
+        })),
+      ];
+      if (incoming.length > accepted.length) {
+        setError(`최대 ${MAX_PHOTOS}장까지만 담을 수 있어요`);
+      }
+      return next;
+    });
+
+    e.target.value = '';
+  }
+
+  function handleRemove(id) {
+    setPhotos((prev) => {
+      const target = prev.find((p) => p.id === id);
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((p) => p.id !== id);
+    });
+  }
+
+  async function handleContinue() {
+    if (!canContinue) return;
+    setIsUploading(true);
+    setError(null);
+    try {
+      const uploaded = await uploadPhotos(
+        photos.map((p) => p.file),
+        isPrivacyMode
+      );
+      onUploaded(uploaded);
+    } catch (err) {
+      setError('업로드에 실패했어요. 다시 시도해주세요');
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  return (
+    <div className="screen upload-screen">
+      <p className="eyebrow">F1 · 오늘의 기록</p>
+      <h1 className="screen-title">오늘 하루,{'\n'}사진 한 장 남겨볼까요</h1>
+      <p className="screen-sub">
+        일상적인 사진 {MIN_PHOTOS}장이면 충분해요. 잘 나온 사진일 필요는 없어요.
+      </p>
+
+      <FilmStrip current={photos.length} min={MIN_PHOTOS} max={MAX_PHOTOS} />
+
+      <div className="upload-screen__grid-wrap">
+        <PhotoGrid
+          photos={photos}
+          isPrivacyMode={isPrivacyMode}
+          maxCount={MAX_PHOTOS}
+          onRemove={handleRemove}
+          onAddClick={() => inputRef.current?.click()}
+        />
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        capture="environment"
+        className="visually-hidden"
+        onChange={handleFilesSelected}
+      />
+
+      <div className="upload-screen__footer">
+        <PrivacyToggle checked={isPrivacyMode} onChange={setIsPrivacyMode} />
+
+        {error && <p className="form-error" role="alert">{error}</p>}
+
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={!canContinue}
+          onClick={handleContinue}
+        >
+          {isUploading ? '업로드하는 중…' : '오늘의 나를 분석하기'}
+        </button>
+      </div>
+    </div>
+  );
+}
