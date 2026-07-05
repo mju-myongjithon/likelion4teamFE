@@ -6,25 +6,44 @@ const TIME_LABEL = {
 };
 
 export default function TraitReveal({ result }) {
-  const items = [
-    { label: '장소', value: result.sceneTags.join(', ') },
-    { label: '시간대', value: TIME_LABEL[result.timeOfDay] ?? result.timeOfDay },
-    { label: '분위기', value: result.mood },
-    { label: '색감', value: result.dominantColor },
-    { label: '활동', value: result.activityTags.join(', ') },
+  const cards = [
+    {
+      title: '나의 공간',
+      score: 84,
+      values: result.sceneTags,
+    },
+    {
+      title: '나의 바이브',
+      score: 88,
+      values: [result.mood, result.dominantColor],
+    },
+    {
+      title: '나의 시간',
+      score: 76,
+      values: [TIME_LABEL[result.timeOfDay] ?? result.timeOfDay, ...result.activityTags.slice(0, 3)],
+    },
   ];
 
   return (
     <div className="trait-reveal">
-      {items.map((item, i) => (
-        <div
-          key={item.label}
-          className="trait-reveal__item"
-          style={{ '--delay': `${i * 260}ms` }}
+      {cards.map((card, i) => (
+        <section
+          key={card.title}
+          className="trait-card"
+          style={{ '--delay': `${i * 180}ms` }}
         >
-          <span className="trait-reveal__label">{item.label}</span>
-          <span className="trait-reveal__value">{item.value}</span>
-        </div>
+          <div className="trait-card__head">
+            <h2>{card.title}</h2>
+            <strong>{card.score}%</strong>
+          </div>
+          <div className="trait-card__grid">
+            {Array.from({ length: 4 }, (_, index) => (
+              <div key={index} className="trait-card__tile">
+                {card.values[index] && <span>{card.values[index]}</span>}
+              </div>
+            ))}
+          </div>
+        </section>
       ))}
     </div>
   );

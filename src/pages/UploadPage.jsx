@@ -5,11 +5,11 @@ import PrivacyToggle from '../components/PrivacyToggle';
 import { uploadPhotos } from '../api/photoApi';
 
 const MIN_PHOTOS = 3;
-const MAX_PHOTOS = 10;
+const MAX_PHOTOS = 3;
 
 export default function UploadPage({ onUploaded }) {
   const [photos, setPhotos] = useState([]);
-  const [isPrivacyMode, setIsPrivacyMode] = useState(true);
+  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(null);
   const inputRef = useRef(null);
@@ -32,9 +32,11 @@ export default function UploadPage({ onUploaded }) {
           previewUrl: URL.createObjectURL(file),
         })),
       ];
+
       if (incoming.length > accepted.length) {
-        setError(`최대 ${MAX_PHOTOS}장까지만 담을 수 있어요`);
+        setError(`오늘은 사진 ${MAX_PHOTOS}장까지만 기록할 수 있어요.`);
       }
+
       return next;
     });
 
@@ -53,6 +55,7 @@ export default function UploadPage({ onUploaded }) {
     if (!canContinue) return;
     setIsUploading(true);
     setError(null);
+
     try {
       const uploaded = await uploadPhotos(
         photos.map((p) => p.file),
@@ -60,7 +63,7 @@ export default function UploadPage({ onUploaded }) {
       );
       onUploaded(uploaded);
     } catch (err) {
-      setError('업로드에 실패했어요. 다시 시도해주세요');
+      setError('업로드에 실패했어요. 다시 시도해 주세요.');
     } finally {
       setIsUploading(false);
     }
@@ -68,23 +71,12 @@ export default function UploadPage({ onUploaded }) {
 
   return (
     <div className="screen upload-screen">
-      <p className="eyebrow">F1 · 오늘의 기록</p>
-      <h1 className="screen-title">오늘 당신의{'\n'}하루는 어땠나요?</h1>
-      <p className="screen-sub">
-        일상적인 사진 {MIN_PHOTOS}장이면 충분해요. 잘 나온 사진일 필요는 없어요.
-      </p>
-
-      <FilmStrip current={photos.length} min={MIN_PHOTOS} max={MAX_PHOTOS} />
-
-      <div className="upload-screen__grid-wrap">
-        <PhotoGrid
-          photos={photos}
-          isPrivacyMode={isPrivacyMode}
-          maxCount={MAX_PHOTOS}
-          onRemove={handleRemove}
-          onAddClick={() => inputRef.current?.click()}
-        />
-      </div>
+      <PhotoGrid
+        photos={photos}
+        isPrivacyMode={isPrivacyMode}
+        onRemove={handleRemove}
+        onAddClick={() => inputRef.current?.click()}
+      />
 
       <input
         ref={inputRef}
@@ -97,6 +89,7 @@ export default function UploadPage({ onUploaded }) {
       />
 
       <div className="upload-screen__footer">
+        <FilmStrip current={photos.length} min={MIN_PHOTOS} max={MAX_PHOTOS} />
         <PrivacyToggle checked={isPrivacyMode} onChange={setIsPrivacyMode} />
 
         {error && <p className="form-error" role="alert">{error}</p>}
@@ -107,7 +100,7 @@ export default function UploadPage({ onUploaded }) {
           disabled={!canContinue}
           onClick={handleContinue}
         >
-          {isUploading ? '업로드하는 중…' : '오늘의 나를 분석하기'}
+          {isUploading ? '업로드 중...' : '오늘의 나 분석하기'}
         </button>
       </div>
     </div>

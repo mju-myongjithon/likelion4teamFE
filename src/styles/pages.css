@@ -1,19 +1,58 @@
-.screen-title {
-  white-space: pre-line;
-}
-
-.upload-screen__grid-wrap {
-  flex: 1;
+.upload-screen {
+  justify-content: flex-start;
 }
 
 .upload-screen__footer {
-  margin-top: auto;
-  padding-top: var(--sp-5);
+  margin-top: 0;
+}
+
+.analysis-screen {
+  gap: var(--sp-5);
+}
+
+.analysis-screen__intro {
+  padding-bottom: var(--sp-2);
+}
+
+.analysis-screen__state {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--sp-4);
 }
 
 .analysis-screen__footer {
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
-  margin-top: auto;
+  padding-top: var(--sp-4);
+}
+
+.analysis-screen__summary {
+  margin: 0 0 var(--sp-3);
+  color: var(--color-text);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.55;
+  text-align: center;
+}
+
+@media (max-width: 390px) {
+  .app-header {
+    padding-top: 42px;
+  }
+
+  .screen {
+    padding-inline: 20px;
+  }
+
+  .photo-grid {
+    min-height: 340px;
+    gap: 12px;
+  }
+
+  .trait-card__tile {
+    min-height: 108px;
+  }
 }
