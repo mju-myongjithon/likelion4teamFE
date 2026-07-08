@@ -1,11 +1,17 @@
+import { Lock } from 'lucide-react';
+
 export default function PrivacyToggle({ checked, onChange }) {
   return (
     <div className="privacy-toggle">
-      <span className="privacy-toggle__icon" aria-hidden="true">lock</span>
+      <span className="privacy-toggle__icon">
+        <Lock size={16} strokeWidth={2} />
+      </span>
       <div className="privacy-toggle__text">
         <span className="privacy-toggle__label">프라이버시 모드</span>
         <span className="privacy-toggle__desc">
-          {checked ? '얼굴은 흐리게 보호됩니다' : '사진을 원본 그대로 사용합니다'}
+          {checked
+            ? '얼굴은 자동으로 흐리게 처리돼요'
+            : '사진을 원본 그대로 사용합니다'}
         </span>
       </div>
       <button

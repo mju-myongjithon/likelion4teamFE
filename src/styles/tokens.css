@@ -1,24 +1,47 @@
+/* ===================================================================
+   Sync.day 디자인 토큰
+   컨셉: 명지대학교 교색(다크블루/블루/그레이) + 매칭 포인트 핑크
+   레이아웃은 넘버링 슬롯 + 하단 탭 내비게이션 구조
+   =================================================================== */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --color-bg: #050505;
-  --color-surface: #0a0a0a;
-  --color-card: #141414;
-  --color-card-soft: #181818;
-  --color-card-muted: #101010;
-  --color-line: #252525;
-  --color-line-soft: #1d1d1d;
-  --color-text: #f4f4f4;
-  --color-text-muted: #8b8b8f;
-  --color-text-faint: #5f5f64;
-  --color-accent: #ffffff;
-  --color-accent-strong: #f4f4f4;
-  --color-danger: #ff6b6b;
+  /* --- Color --- */
+  /* 명지 다크블루 #002A64 를 눌러서 만든 배경 톤 */
+  --color-bg: #070F1F;
+  --color-bg-elevated: #0F1C33;
+  --color-bg-elevated-2: #16263F;
+  --color-paper: #FFFFFF;
+  --color-paper-dim: #E9EDF2;
 
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* 명지 블루 #00A5E3 — 메인 액션 컬러 */
+  --color-accent: #00A5E3;
+  --color-accent-strong: #33B8EA;
+  --color-accent-dim: #0C3B5C;
+
+  /* 매칭 전용 포인트 컬러 (핑크) */
+  --color-match: #E94B8A;
+  --color-match-strong: #F272A3;
+
+  --color-line: #1D2A40;
+  --color-line-soft: #141F33;
+
+  --color-text: #F5F7FA;
+  --color-text-muted: #93A0B4;   /* 명지 그레이 계열을 다크 배경에 맞게 조정 */
+  --color-text-faint: #5E6B80;
+
+  --color-ink: #002A64;          /* 명지 다크블루 — 밝은 요소 위의 텍스트 */
+  --color-ink-muted: #365176;
+
+  --color-danger: #C23B6B;
+
+  /* --- Typography --- */
+  --font-display: 'Inter', -apple-system, sans-serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
   --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
 
+  /* --- Spacing scale --- */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -28,11 +51,12 @@
   --sp-7: 48px;
   --sp-8: 64px;
 
-  --radius-card: 24px;
-  --radius-control: 22px;
+  /* --- Radius / shadow --- */
+  --radius-card: 16px;
   --radius-pill: 999px;
-  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.38);
+  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.4);
 
+  /* --- Motion --- */
   --ease-develop: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-fast: 180ms;
   --dur-med: 420ms;

@@ -1,44 +1,35 @@
 import { useState } from 'react';
 import AppHeader from './components/AppHeader';
+import BottomNav from './components/BottomNav';
 import UploadPage from './pages/UploadPage';
 import AnalysisPage from './pages/AnalysisPage';
+import ProfilePage from './pages/ProfilePage';
 
 export default function App() {
-  const [step, setStep] = useState('upload'); // upload | analysis
+  const [tab, setTab] = useState('upload'); // upload | analysis | profile
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
 
   function handleUploaded(photos) {
     setUploadedPhotos(photos);
-    setStep('analysis');
-  }
-
-  function handleBackToUpload() {
-    setStep('upload');
+    setTab('analysis');
   }
 
   return (
     <div className="app-frame">
       <AppHeader />
-      <main className="app-main">
-        {step === 'upload' && <UploadPage onUploaded={handleUploaded} />}
-        {step === 'analysis' && (
-          <AnalysisPage uploadedPhotos={uploadedPhotos} onBack={handleBackToUpload} />
+
+      <div className="app-content">
+        {tab === 'upload' && <UploadPage onUploaded={handleUploaded} />}
+        {tab === 'analysis' && (
+          <AnalysisPage
+            uploadedPhotos={uploadedPhotos}
+            onGoToUpload={() => setTab('upload')}
+          />
         )}
-      </main>
-      <nav className="bottom-nav" aria-label="주요 메뉴">
-        <button type="button" className={`bottom-nav__item ${step === 'upload' ? 'is-active' : ''}`}>
-          <span className="bottom-nav__icon">↑</span>
-          <span>업로드</span>
-        </button>
-        <button type="button" className={`bottom-nav__item ${step === 'analysis' ? 'is-active' : ''}`}>
-          <span className="bottom-nav__icon">✦</span>
-          <span>결과</span>
-        </button>
-        <button type="button" className="bottom-nav__item" disabled>
-          <span className="bottom-nav__icon">○</span>
-          <span>프로필</span>
-        </button>
-      </nav>
+        {tab === 'profile' && <ProfilePage />}
+      </div>
+
+      <BottomNav active={tab} onChange={setTab} />
     </div>
   );
 }

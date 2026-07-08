@@ -1,15 +1,14 @@
 import { useRef, useState } from 'react';
 import PhotoGrid from '../components/PhotoGrid';
-import FilmStrip from '../components/FilmStrip';
 import PrivacyToggle from '../components/PrivacyToggle';
 import { uploadPhotos } from '../api/photoApi';
 
 const MIN_PHOTOS = 3;
-const MAX_PHOTOS = 3;
+const MAX_PHOTOS = 10;
 
 export default function UploadPage({ onUploaded }) {
   const [photos, setPhotos] = useState([]);
-  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
+  const [isPrivacyMode, setIsPrivacyMode] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(null);
   const inputRef = useRef(null);
@@ -32,11 +31,9 @@ export default function UploadPage({ onUploaded }) {
           previewUrl: URL.createObjectURL(file),
         })),
       ];
-
       if (incoming.length > accepted.length) {
-        setError(`오늘은 사진 ${MAX_PHOTOS}장까지만 기록할 수 있어요.`);
+        setError(`최대 ${MAX_PHOTOS}장까지만 담을 수 있어요`);
       }
-
       return next;
     });
 
@@ -55,7 +52,6 @@ export default function UploadPage({ onUploaded }) {
     if (!canContinue) return;
     setIsUploading(true);
     setError(null);
-
     try {
       const uploaded = await uploadPhotos(
         photos.map((p) => p.file),
@@ -63,7 +59,7 @@ export default function UploadPage({ onUploaded }) {
       );
       onUploaded(uploaded);
     } catch (err) {
-      setError('업로드에 실패했어요. 다시 시도해 주세요.');
+      setError('업로드에 실패했어요. 다시 시도해주세요');
     } finally {
       setIsUploading(false);
     }
@@ -74,8 +70,9 @@ export default function UploadPage({ onUploaded }) {
       <PhotoGrid
         photos={photos}
         isPrivacyMode={isPrivacyMode}
+        minCount={MIN_PHOTOS}
         onRemove={handleRemove}
-        onAddClick={() => inputRef.current?.click()}
+        onSlotClick={() => inputRef.current?.click()}
       />
 
       <input
@@ -88,19 +85,28 @@ export default function UploadPage({ onUploaded }) {
         onChange={handleFilesSelected}
       />
 
+      <div className="upload-progress">
+        <span>
+          오늘의 기록 완료{' '}
+          <strong className={photos.length >= MIN_PHOTOS ? 'is-ready' : ''}>
+            {Math.min(photos.length, MIN_PHOTOS)}/{MIN_PHOTOS}
+          </strong>
+        </span>
+      </div>
+      <hr className="section-divider" />
+
+      <PrivacyToggle checked={isPrivacyMode} onChange={setIsPrivacyMode} />
+
+      {error && <p className="form-error" role="alert">{error}</p>}
+
       <div className="upload-screen__footer">
-        <FilmStrip current={photos.length} min={MIN_PHOTOS} max={MAX_PHOTOS} />
-        <PrivacyToggle checked={isPrivacyMode} onChange={setIsPrivacyMode} />
-
-        {error && <p className="form-error" role="alert">{error}</p>}
-
         <button
           type="button"
           className="btn-primary"
           disabled={!canContinue}
           onClick={handleContinue}
         >
-          {isUploading ? '업로드 중...' : '오늘의 나 분석하기'}
+          {isUploading ? '업로드하는 중…' : '오늘의 나 분석하기'}
         </button>
       </div>
     </div>
