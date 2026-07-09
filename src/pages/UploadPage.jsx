@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import PhotoGrid from '../components/PhotoGrid';
-import FilmStrip from '../components/FilmStrip';
 import PrivacyToggle from '../components/PrivacyToggle';
 import { uploadPhotos } from '../api/photoApi';
 
@@ -68,23 +67,13 @@ export default function UploadPage({ onUploaded }) {
 
   return (
     <div className="screen upload-screen">
-      <p className="eyebrow">F1 · 오늘의 기록</p>
-      <h1 className="screen-title">오늘 하루,{'\n'}사진 한 장 남겨볼까요</h1>
-      <p className="screen-sub">
-        일상적인 사진 {MIN_PHOTOS}장이면 충분해요. 잘 나온 사진일 필요는 없어요.
-      </p>
-
-      <FilmStrip current={photos.length} min={MIN_PHOTOS} max={MAX_PHOTOS} />
-
-      <div className="upload-screen__grid-wrap">
-        <PhotoGrid
-          photos={photos}
-          isPrivacyMode={isPrivacyMode}
-          maxCount={MAX_PHOTOS}
-          onRemove={handleRemove}
-          onAddClick={() => inputRef.current?.click()}
-        />
-      </div>
+      <PhotoGrid
+        photos={photos}
+        isPrivacyMode={isPrivacyMode}
+        minCount={MIN_PHOTOS}
+        onRemove={handleRemove}
+        onSlotClick={() => inputRef.current?.click()}
+      />
 
       <input
         ref={inputRef}
@@ -96,18 +85,28 @@ export default function UploadPage({ onUploaded }) {
         onChange={handleFilesSelected}
       />
 
+      <div className="upload-progress">
+        <span>
+          오늘의 기록 완료{' '}
+          <strong className={photos.length >= MIN_PHOTOS ? 'is-ready' : ''}>
+            {Math.min(photos.length, MIN_PHOTOS)}/{MIN_PHOTOS}
+          </strong>
+        </span>
+      </div>
+      <hr className="section-divider" />
+
+      <PrivacyToggle checked={isPrivacyMode} onChange={setIsPrivacyMode} />
+
+      {error && <p className="form-error" role="alert">{error}</p>}
+
       <div className="upload-screen__footer">
-        <PrivacyToggle checked={isPrivacyMode} onChange={setIsPrivacyMode} />
-
-        {error && <p className="form-error" role="alert">{error}</p>}
-
         <button
           type="button"
           className="btn-primary"
           disabled={!canContinue}
           onClick={handleContinue}
         >
-          {isUploading ? '업로드하는 중…' : '오늘의 나를 분석하기'}
+          {isUploading ? '업로드하는 중…' : '오늘의 나 분석하기'}
         </button>
       </div>
     </div>

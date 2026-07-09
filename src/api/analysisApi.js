@@ -17,18 +17,24 @@
 
 const MOCK_ANALYSIS_DELAY_MS = 1800;
 
-const SCENE_POOL = ['도서관', '학생회관', '캠퍼스 벤치', '카페', '강의실', '기숙사'];
+const SCENE_POOL = ['캠퍼스', '카페', '도서관', '학생회관', '강의실', '기숙사'];
 const TIME_POOL = ['morning', 'afternoon', 'evening', 'night'];
-const MOOD_POOL = ['차분함', '설렘', '분주함', '느긋함', '집중'];
-const COLOR_POOL = ['warm amber', 'soft neutral', 'cool blue', 'muted green'];
-const ACTIVITY_POOL = ['공부', '식사', '산책', '과제', '휴식', '동아리 활동'];
+const MOOD_POOL = ['집중', '설렘', '분주함', '느긋함', '차분함'];
+const COLOR_POOL = ['deep black', 'warm amber', 'soft neutral', 'cool blue'];
+const ACTIVITY_POOL = ['공부', '식사', '산책', '과제', '동아리 활동'];
+const SUMMARY_POOL = [
+  '같은 시간대, 비슷한 공간을 선호합니다.',
+  '조용한 공간에서 집중하는 하루를 보냈어요.',
+  '활동적이고 다채로운 하루를 보냈어요.',
+];
 
 /**
  * @param {string[]} photoIds - F1에서 업로드된 photoId 목록 (3장 이상)
  * @returns {Promise<{
  *   analysisId: string, date: string,
  *   sceneTags: string[], timeOfDay: string, mood: string,
- *   dominantColor: string, activityTags: string[]
+ *   dominantColor: string, activityTags: string[],
+ *   spaceScore: number, vibeScore: number, summary: string
  * }>}
  */
 export async function analyzePhotos(photoIds) {
@@ -46,6 +52,9 @@ export async function analyzePhotos(photoIds) {
     mood: pickOne(MOOD_POOL),
     dominantColor: pickOne(COLOR_POOL),
     activityTags: pickRandom(ACTIVITY_POOL, 3),
+    spaceScore: 78 + Math.floor(Math.random() * 18),
+    vibeScore: 78 + Math.floor(Math.random() * 18),
+    summary: pickOne(SUMMARY_POOL),
   };
 }
 
