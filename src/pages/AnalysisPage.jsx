@@ -3,7 +3,7 @@ import SyncCharacter from '../components/SyncCharacter';
 import TraitGroupCard from '../components/TraitGroupCard';
 import { analyzePhotos } from '../api/analysisApi';
 
-export default function AnalysisPage({ uploadedPhotos, onGoToUpload }) {
+export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch }) {
   const [status, setStatus] = useState('idle'); // idle | loading | done | error
   const [result, setResult] = useState(null);
   const hasStarted = useRef(false);
@@ -82,6 +82,12 @@ export default function AnalysisPage({ uploadedPhotos, onGoToUpload }) {
               tags={[result.mood, result.dominantColor, ...result.activityTags]}
               photos={uploadedPhotos}
             />
+          </div>
+
+          <div className="analysis-screen__footer">
+            <button type="button" className="btn-primary" onClick={onViewMatch}>
+              오늘의 매칭 보기
+            </button>
           </div>
         </>
       )}
