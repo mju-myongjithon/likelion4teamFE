@@ -1,29 +1,73 @@
 import { useEffect, useRef, useState } from 'react';
 import SyncCharacter from '../components/SyncCharacter';
 import TraitGroupCard from '../components/TraitGroupCard';
-import { analyzePhotos } from '../api/analysisApi';
+import FeatureTagRow from '../components/FeatureTagRow';
+import { analyzePhotos, getTodayAnalysis } from '../api/analysisApi';
+import { getPhotoStatus, getTodayPhotos } from '../api/photoApi';
 
 export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch }) {
-  const [status, setStatus] = useState('idle'); // idle | loading | done | error
-  const [result, setResult] = useState(null);
+  const [photos, setPhotos] = useState(uploadedPhotos);
+  const [status, setStatus] = useState('checking'); // checking | idle | loading | done | error
+  const [features, setFeatures] = useState(null);
   const hasStarted = useRef(false);
 
   useEffect(() => {
-    if (uploadedPhotos.length === 0) {
-      setStatus('idle');
-      return;
-    }
     if (hasStarted.current) return;
     hasStarted.current = true;
-    runAnalysis();
+    init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadedPhotos]);
+  }, []);
+
+  async function init() {
+    setStatus('checking');
+    try {
+      // 오늘 이미 분석해둔 게 있으면 새로 분석하지 않고 바로 보여준다
+      const existing = await getTodayAnalysis();
+      if (existing?.features) {
+        setFeatures(existing.features);
+        await ensurePhotosLoaded();
+        setStatus('done');
+        return;
+      }
+    } catch (err) {
+      // "오늘 분석 없음"(404 등)은 정상 흐름이라 무시하고 아래로 진행
+    }
+    await tryStartAnalysis();
+  }
+
+  async function ensurePhotosLoaded() {
+    if (photos.length > 0) return;
+    try {
+      const todayPhotos = await getTodayPhotos();
+      setPhotos(todayPhotos);
+    } catch {
+      // 사진 목록을 못 가져와도 텍스트 결과는 보여줄 수 있으니 무시
+    }
+  }
+
+  async function tryStartAnalysis() {
+    if (photos.length === 0) {
+      try {
+        const photoStatus = await getPhotoStatus();
+        if (!photoStatus.readyForAnalysis) {
+          setStatus('idle');
+          return;
+        }
+        const todayPhotos = await getTodayPhotos();
+        setPhotos(todayPhotos);
+      } catch (err) {
+        setStatus('idle');
+        return;
+      }
+    }
+    runAnalysis();
+  }
 
   async function runAnalysis() {
     setStatus('loading');
     try {
-      const data = await analyzePhotos(uploadedPhotos.map((p) => p.photoId));
-      setResult(data);
+      const data = await analyzePhotos();
+      setFeatures(data.features);
       setStatus('done');
     } catch (err) {
       setStatus('error');
@@ -33,6 +77,13 @@ export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch
   return (
     <div className="screen analysis-screen">
       <p className="eyebrow">RESULT</p>
+
+      {status === 'checking' && (
+        <>
+          <h1 className="screen-title">오늘의 기록을 확인하는 중</h1>
+          <SyncCharacter />
+        </>
+      )}
 
       {status === 'idle' && (
         <>
@@ -47,9 +98,7 @@ export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch
       {status === 'loading' && (
         <>
           <h1 className="screen-title">오늘의 나를 분석하는 중</h1>
-          <p className="screen-sub">
-            사진 {uploadedPhotos.length}장의 장소, 시간, 분위기를 읽고 있어요.
-          </p>
+          <p className="screen-sub">사진 속 장소, 시간, 분위기를 읽고 있어요.</p>
           <SyncCharacter />
         </>
       )}
@@ -64,24 +113,19 @@ export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch
         </>
       )}
 
-      {status === 'done' && result && (
+      {status === 'done' && features && (
         <>
           <h1 className="screen-title">오늘의 싱크</h1>
-          <p className="screen-sub">{result.summary}</p>
+          <p className="screen-sub">{features.summary}</p>
 
           <div className="trait-group-list">
-            <TraitGroupCard
-              title="나의 공간"
-              score={result.spaceScore}
-              tags={result.sceneTags}
-              photos={uploadedPhotos}
-            />
-            <TraitGroupCard
-              title="나의 바이브"
-              score={result.vibeScore}
-              tags={[result.mood, result.dominantColor, ...result.activityTags]}
-              photos={uploadedPhotos}
-            />
+            <TraitGroupCard title="장소" items={features.scene} photos={photos} />
+
+           <FeatureTagRow title="시간대" tags={features.timeOfDay} variant="time" />
+            <FeatureTagRow title="분위기" tags={features.mood} />
+            <FeatureTagRow title="색감" tags={features.color} variant="color" />
+
+            <TraitGroupCard title="활동" items={features.activity} photos={photos} />
           </div>
 
           <div className="analysis-screen__footer">

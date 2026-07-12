@@ -393,7 +393,7 @@
   gap: 8px;
 }
 
-/* ---------- Match screen — waiting / locked / error 상태 ---------- */
+/* ---------- Match screen — 상태 화면 공통(대기/거부/에러 등) ---------- */
 .match-state {
   text-align: center;
   padding: var(--sp-7) 0 var(--sp-4);
@@ -417,7 +417,19 @@
   padding: 12px var(--sp-5);
 }
 
-/* ---------- Match score card (F3 revealed / F8 근거) ---------- */
+/* ---------- 매칭 수락/거부 버튼 줄 ---------- */
+.match-decision-row {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+.match-decision-row .btn-primary,
+.match-decision-row .btn-secondary {
+  width: auto;
+  flex: 1;
+}
+
+/* ---------- Match score card (F3 결과 / F8 근거) ---------- */
 .match-score-card {
   border: 1px solid var(--color-line);
   border-radius: var(--radius-card);
@@ -458,6 +470,7 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
+  flex-wrap: wrap;
 }
 
 .match-breakdown__icon {
@@ -508,7 +521,15 @@
   color: var(--color-text-faint);
 }
 
-/* ---------- Icebreaker questions (F6) ---------- */
+.match-breakdown__keywords {
+  flex-basis: 100%;
+  font-size: 11px;
+  color: var(--color-text-faint);
+  padding-left: 44px;
+  margin-top: -4px;
+}
+
+/* ---------- Icebreaker questions (F6 — 아직 미사용, 붙을 때 대비해 유지) ---------- */
 .icebreaker {
   margin-bottom: var(--sp-4);
 }
@@ -536,7 +557,7 @@
   padding: var(--sp-3);
 }
 
-/* ---------- Reveal row (F5) ---------- */
+/* ---------- Reveal row (상대 닉네임/캠퍼스 공개) ---------- */
 .match-reveal-row {
   display: flex;
   align-items: center;
@@ -583,4 +604,34 @@
 .match-screen__footer {
   margin-top: auto;
   padding-top: var(--sp-2);
+}
+/* ---------- Feature tags (F2 — 시간대/분위기/색감) ---------- */
+.feature-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.feature-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text);
+  background: var(--color-bg-elevated-2);
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+}
+
+.feature-tag__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.feature-tag__icon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
 }

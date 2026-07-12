@@ -1,138 +1,205 @@
 import { useEffect, useRef, useState } from 'react';
-import { Lock, RefreshCw, Search, UserPlus } from 'lucide-react';
+import { RefreshCw, X, Check } from 'lucide-react';
 import SyncCharacter from '../components/SyncCharacter';
 import MatchScoreCard from '../components/MatchScoreCard';
-import IcebreakerList from '../components/IcebreakerList';
-import { findTodayMatch, revealMatch, requestFriend } from '../api/matchApi';
+import { checkTodayMatch, acceptAndAttemptMatch, declineMatch } from '../api/matchApi';
 
-export default function MatchPage() {
-  const [status, setStatus] = useState('loading'); // loading | waiting | locked | revealed | error
+const POLL_INTERVAL_MS = 4000;
+
+// F3. 유사도 매칭 화면
+// status: NOT_REQUESTED(수락/거부 선택) | PENDING(매칭중) | MATCHED(완료) | DECLINED(거부함)
+export default function MatchPage({ onGoToUpload }) {
+  const [state, setState] = useState('checking'); // checking | not_requested | pending | matched | declined | no-analysis | error
   const [match, setMatch] = useState(null);
-  const [isRevealed, setIsRevealed] = useState(false);
-  const [isFriendRequested, setIsFriendRequested] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [isDeclining, setIsDeclining] = useState(false);
+  const pollTimer = useRef(null);
   const hasStarted = useRef(false);
 
   useEffect(() => {
     if (hasStarted.current) return;
     hasStarted.current = true;
-    load();
+    checkInitialStatus();
+    return () => clearTimeout(pollTimer.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function load() {
-    setStatus('loading');
-    setMatch(null);
-    setIsRevealed(false);
-    setIsFriendRequested(false);
+  async function checkInitialStatus() {
+    setState('checking');
     try {
-      const data = await findTodayMatch();
-      if (data.status === 'revealed') setMatch(data);
-      setStatus(data.status);
+      const data = await checkTodayMatch();
+      applyStatus(data);
     } catch (err) {
-      setStatus('error');
+      handleError(err);
     }
   }
 
-  async function handleReveal() {
-    if (!match) return;
-    await revealMatch(match.matchId);
-    setIsRevealed(true);
+  function applyStatus(data) {
+    if (data.status === 'MATCHED' && data.match) {
+      setMatch(data.match);
+      setState('matched');
+      return;
+    }
+    if (data.status === 'DECLINED') {
+      setState('declined');
+      return;
+    }
+    if (data.status === 'PENDING') {
+      setState('pending');
+      pollTimer.current = setTimeout(poll, POLL_INTERVAL_MS);
+      return;
+    }
+    // NOT_REQUESTED
+    setState('not_requested');
   }
 
-  async function handleFriendRequest() {
-    if (!match) return;
-    await requestFriend(match.matchId);
-    setIsFriendRequested(true);
+  async function poll() {
+    // 스펙상 "매칭중…" 화면에서는 GET이 아니라 POST /api/matches를 반복 호출해야
+    // 실제로 매칭이 진행됨
+    try {
+      const data = await acceptAndAttemptMatch();
+      applyStatus(data);
+    } catch (err) {
+      handleError(err);
+    }
+  }
+
+  function handleError(err) {
+    if (err.code === 'ANALYSIS_NOT_FOUND') {
+      setState('no-analysis');
+      return;
+    }
+    setState('error');
+  }
+
+  async function handleAccept() {
+    setIsAccepting(true);
+    try {
+      const data = await acceptAndAttemptMatch();
+      applyStatus(data);
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setIsAccepting(false);
+    }
+  }
+
+  async function handleDecline() {
+    setIsDeclining(true);
+    try {
+      const data = await declineMatch();
+      applyStatus(data);
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setIsDeclining(false);
+    }
   }
 
   return (
     <div className="screen match-screen">
       <p className="eyebrow">MATCH</p>
 
-      {status === 'loading' && (
+      {state === 'checking' && (
         <>
-          <h1 className="screen-title">오늘의 상대를 찾는 중</h1>
-          <p className="screen-sub">반대 캠퍼스에서 오늘을 기록한 상대를 찾고 있어요</p>
+          <h1 className="screen-title">매칭 상태를 확인하는 중</h1>
           <SyncCharacter />
         </>
       )}
 
-      {status === 'waiting' && (
+      {state === 'not_requested' && (
         <div className="match-state">
-          <span className="match-state__icon">
-            <Search size={26} strokeWidth={1.8} />
-          </span>
-          <h1 className="screen-title">아직 매칭 상대가 없어요</h1>
+          <h1 className="screen-title">오늘의 매칭을 시작할까요?</h1>
           <p className="screen-sub">
-            오늘을 기록한 반대 캠퍼스 학생이 아직 없어요. 조금 이따 다시 확인해보세요
+            수락하면 반대 캠퍼스에서 나와 가장 비슷한 하루를 보낸 상대를 찾아드려요
           </p>
-          <button type="button" className="btn-primary" onClick={load}>
-            <RefreshCw size={16} strokeWidth={2} />
-            다시 확인하기
+          <div className="match-decision-row">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleDecline}
+              disabled={isDeclining || isAccepting}
+            >
+              <X size={16} strokeWidth={2} />
+              오늘은 안 할래요
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleAccept}
+              disabled={isAccepting || isDeclining}
+            >
+              <Check size={16} strokeWidth={2} />
+              {isAccepting ? '수락하는 중…' : '매칭 수락'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {state === 'pending' && (
+        <>
+          <h1 className="screen-title">매칭중…</h1>
+          <p className="screen-sub">
+            반대 캠퍼스에서 오늘을 기록하고 수락한 상대가 나타나면 바로 알려드릴게요
+          </p>
+          <SyncCharacter />
+        </>
+      )}
+
+      {state === 'declined' && (
+        <div className="match-state">
+          <h1 className="screen-title">오늘은 매칭을 쉬어가요</h1>
+          <p className="screen-sub">내일 다시 참여할 수 있어요</p>
+        </div>
+      )}
+
+      {state === 'no-analysis' && (
+        <div className="match-state">
+          <h1 className="screen-title">먼저 오늘을 기록해주세요</h1>
+          <p className="screen-sub">매칭은 오늘의 분석(F2)을 완료해야 시작돼요</p>
+          <button type="button" className="btn-primary" onClick={onGoToUpload}>
+            사진 올리러 가기
           </button>
         </div>
       )}
 
-      {status === 'locked' && (
-        <div className="match-state">
-          <span className="match-state__icon">
-            <Lock size={26} strokeWidth={1.8} />
-          </span>
-          <h1 className="screen-title">매칭 상대는 정해졌어요</h1>
-          <p className="screen-sub">
-            상대가 아직 오늘을 기록하지 않았어요. 완료되면 결과가 열려요
-          </p>
-          <button type="button" className="btn-primary" onClick={load}>
-            <RefreshCw size={16} strokeWidth={2} />
-            다시 확인하기
-          </button>
-        </div>
-      )}
-
-      {status === 'error' && (
+      {state === 'error' && (
         <div className="match-state">
           <h1 className="screen-title">매칭 정보를 불러오지 못했어요</h1>
           <p className="screen-sub">잠시 후 다시 시도해주세요</p>
-          <button type="button" className="btn-primary" onClick={load}>
+          <button type="button" className="btn-primary" onClick={checkInitialStatus}>
+            <RefreshCw size={16} strokeWidth={2} />
             다시 시도하기
           </button>
         </div>
       )}
 
-      {status === 'revealed' && match && (
+      {state === 'matched' && match && (
         <>
           <h1 className="screen-title">오늘의 매칭</h1>
-          <p className="screen-sub">{match.aiComment}</p>
+          <p className="screen-sub">
+            {match.revealedToMe
+              ? `${match.partnerNickname}님과 ${match.similarityScore}% 닮았어요`
+              : '오늘의 상대가 정해졌어요'}
+          </p>
 
           <MatchScoreCard score={match.similarityScore} breakdown={match.scoreBreakdown} />
 
-          <div className="match-reveal-row">
-            <span className={`match-partner-thumb ${isRevealed ? '' : 'is-blurred'}`} />
-            <div className="match-reveal-row__text">
-              <span className="match-reveal-row__label">
-                {isRevealed ? '상대방 사진이 공개됐어요' : '상대방 사진은 아직 비공개예요'}
-              </span>
-              {!isRevealed && (
-                <button type="button" className="btn-secondary" onClick={handleReveal}>
-                  공개하기
-                </button>
-              )}
+          {match.revealedToMe ? (
+            <div className="match-reveal-row">
+              <div className="match-reveal-row__text">
+                <span className="match-reveal-row__label">
+                  {match.partnerNickname} · {match.partnerCampus}
+                </span>
+              </div>
             </div>
-          </div>
-
-          <IcebreakerList questions={match.icebreakerQuestions} />
-
-          <div className="match-screen__footer">
-            <button
-              type="button"
-              className="btn-primary"
-              disabled={isFriendRequested}
-              onClick={handleFriendRequest}
-            >
-              <UserPlus size={16} strokeWidth={2} />
-              {isFriendRequested ? '신청 완료' : '친구 신청하기'}
-            </button>
-          </div>
+          ) : (
+            <div className="match-state">
+              <p className="screen-sub">
+                다음 단계(연락처 교환 방식)는 아직 논의 중이에요. 정해지면 여기서 이어질 예정이에요.
+              </p>
+            </div>
+          )}
         </>
       )}
     </div>

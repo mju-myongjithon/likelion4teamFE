@@ -39,6 +39,22 @@ export async function getPhotoStatus() {
   return normalizeStatus(data);
 }
 
+// 오늘 이미 서버에 업로드되어 있는 사진 목록 조회.
+// 새로고침/탭 이동 등으로 로컬 state(uploadedPhotos)가 비어있을 때,
+// 서버에 이미 있는 사진을 다시 불러와 F2로 이어가기 위해 사용한다.
+export async function getTodayPhotos() {
+  assertApiBaseUrl();
+
+  const response = await safeFetch(
+    `${API_BASE_URL}/api/photos?userId=${CURRENT_USER_ID}`,
+    { method: 'GET' }
+  );
+
+  const data = await parseJsonOrThrow(response);
+  const list = Array.isArray(data) ? data : (data.photos ?? []);
+  return list.map(normalizePhoto);
+}
+
 async function safeFetch(url, options) {
   try {
     return await fetch(url, options);

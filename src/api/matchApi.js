@@ -1,95 +1,66 @@
+import { API_BASE_URL, assertApiBaseUrl } from './client';
+import { CURRENT_USER_ID } from '../utils/currentUser';
+
 /**
- * F3~F9. 유사도 매칭 API 레이어
+ * F3. 유사도 매칭 API 레이어 (실제 백엔드 연동)
  *
- * 실제 연동 예정 스펙 (명세서 기준 — match 테이블 구조만 있고 REST 스펙은
- * 아직 없어서, analysisApi.js와 동일하게 임시로 가정해둔 형태):
- *   GET  /api/match/today?userId=...
- *   res : {
- *     status: 'waiting' | 'locked' | 'revealed',
- *     matchId, similarityScore,
- *     scoreBreakdown: [{ key, label, points, max, matched }],
- *     aiComment, icebreakerQuestions: string[]
- *   }
- *   POST /api/match/:matchId/reveal
- *   POST /api/match/:matchId/friend-request
+ * POST /api/matches?userId=...         — 매칭 수락 + 매칭 시도 (반복 호출용)
+ * POST /api/matches/decline?userId=... — 매칭 거부
+ * GET  /api/matches/today?userId=...   — 현재 상태만 조회 (매칭을 새로 걸지 않음)
  *
- * 지금은 백엔드가 없어서, 세 가지 상태(waiting/locked/revealed)를 랜덤으로
- * 돌려주는 방식으로 로딩 지연시간과 화면 분기부터 검증한다.
+ * 세 API 공통 응답: { status, match }
+ *   status: 'NOT_REQUESTED' | 'PENDING' | 'MATCHED' | 'DECLINED'
+ *   match : MATCHED일 때만 값 있음, 나머지는 null
+ *     { matchId, similarityScore, partnerId, partnerNickname, partnerCampus,
+ *       revealedToMe, scoreBreakdown }
+ *
+ * 참고:
+ * - "매칭중…" 화면에서는 GET이 아니라 POST /api/matches를 계속 반복 호출해야
+ *   실제로 매칭이 진행됨 (GET은 상태 조회만 함)
+ * - revealedToMe는 F5(연락처 교환/채팅 — 아직 방향 미정) 붙기 전까지 항상 false
+ * - scoreBreakdown은 "항목별 점수 + 공통 키워드"를 담는다고만 알려져 있고
+ *   정확한 스키마는 미확인 → 방어적으로 처리 (숫자든 {score, keywords} 형태든 대응)
  */
 
-const MOCK_MATCH_DELAY_MS = 1400;
-const MOCK_ACTION_DELAY_MS = 300;
+export async function checkTodayMatch() {
+  return callMatchApi(`${API_BASE_URL}/api/matches/today?userId=${CURRENT_USER_ID}`, 'GET');
+}
 
-const STATUS_POOL = ['waiting', 'locked', 'revealed'];
+export async function acceptAndAttemptMatch() {
+  return callMatchApi(`${API_BASE_URL}/api/matches?userId=${CURRENT_USER_ID}`, 'POST');
+}
 
-const BREAKDOWN_POOL = [
-  { key: 'scene', label: '장소', max: 30 },
-  { key: 'time', label: '시간', max: 20 },
-  { key: 'activity', label: '활동', max: 20 },
-  { key: 'mood', label: '분위기', max: 20 },
-  { key: 'color', label: '색감', max: 10 },
-];
+export async function declineMatch() {
+  return callMatchApi(`${API_BASE_URL}/api/matches/decline?userId=${CURRENT_USER_ID}`, 'POST');
+}
 
-const COMMENT_POOL = [
-  '두 사람 모두 늦은 오후 도서관에서 차분한 하루를 보냈어요. 같은 톤의 조명 아래, 조용히 집중하는 시간을 나눴네요.',
-  '비슷한 시간대에 캠퍼스 곳곳을 돌아다녔어요. 발걸음의 리듬이 닮아있어요.',
-  '둘 다 활동적인 하루를 보냈어요. 분주하지만 즐거운 하루였을 것 같아요.',
-];
+async function callMatchApi(url, method) {
+  assertApiBaseUrl();
+  const response = await safeFetch(url, { method });
+  return parseMatchResponse(response);
+}
 
-const QUESTION_POOL = [
-  '둘 다 그 시간에 뭐 듣고 있었어요?',
-  '오늘 그 자리, 자주 가는 곳이에요?',
-  '오후에 제일 집중 잘 되는 편이에요?',
-  '오늘 하루 중 제일 기억에 남는 순간은요?',
-];
-
-export async function findTodayMatch() {
-  await wait(MOCK_MATCH_DELAY_MS);
-
-  const status = pickOne(STATUS_POOL);
-
-  if (status === 'waiting') {
-    return { status };
+async function safeFetch(url, options) {
+  try {
+    return await fetch(url, options);
+  } catch (err) {
+    const networkError = new Error('서버에 연결할 수 없어요. 백엔드가 켜져 있는지 확인해주세요');
+    networkError.code = 'NETWORK_ERROR';
+    throw networkError;
   }
-  if (status === 'locked') {
-    return { status, partnerCampus: '인문캠' };
+}
+
+async function parseMatchResponse(response) {
+  if (!response.ok) {
+    let body = null;
+    try {
+      body = await response.json();
+    } catch {
+      // 에러 응답이 JSON이 아닐 수도 있으니 무시
+    }
+    const err = new Error(body?.message ?? `요청이 실패했어요 (${response.status})`);
+    err.code = body?.code ?? `HTTP_${response.status}`;
+    throw err;
   }
-
-  const scoreBreakdown = BREAKDOWN_POOL.map((item) => {
-    const matched = Math.random() > 0.2;
-    return { ...item, points: matched ? item.max : 0, matched };
-  });
-  const similarityScore = scoreBreakdown.reduce((sum, item) => sum + item.points, 0);
-
-  return {
-    status: 'revealed',
-    matchId: `mock-match-${Date.now()}`,
-    similarityScore,
-    scoreBreakdown,
-    aiComment: pickOne(COMMENT_POOL),
-    icebreakerQuestions: pickRandom(QUESTION_POOL, 3),
-  };
-}
-
-export async function revealMatch(matchId) {
-  await wait(MOCK_ACTION_DELAY_MS);
-  return { matchId, revealed: true };
-}
-
-export async function requestFriend(matchId) {
-  await wait(MOCK_ACTION_DELAY_MS);
-  return { matchId, requested: true };
-}
-
-function pickOne(pool) {
-  return pool[Math.floor(Math.random() * pool.length)];
-}
-
-function pickRandom(pool, count) {
-  const shuffled = [...pool].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-}
-
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return response.json(); // { status, match }
 }
