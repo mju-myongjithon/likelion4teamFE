@@ -1,5 +1,6 @@
-// F3/F8. 유사도 점수 카드 — 실제 scoreBreakdown 구조(DimensionScore) 기준
-// { scene, timeOfDay, activity, mood, color } 각각 { sim, weight, contribution, commonTags }
+// F3/F8. 유사도 점수 카드 — 실제 scoreBreakdown 구조 기준
+// { totalScore, dimensions: { scene, timeOfDay, activity, mood, color } }
+//   각 dimension = { sim, weight, contribution, commonTags }
 const AXIS_LABELS = {
   scene: '장소',
   timeOfDay: '시간대',
@@ -19,7 +20,7 @@ export default function MatchScoreCard({ score, breakdown }) {
       </div>
       <ul className="match-breakdown">
         {AXIS_ORDER.map((key) => {
-          const dim = breakdown?.[key];
+          const dim = breakdown?.dimensions?.[key];
           if (!dim) return null;
           const ratio = dim.weight
             ? Math.max(0, Math.min(100, (dim.contribution / dim.weight) * 100))
