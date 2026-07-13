@@ -8,6 +8,11 @@ const POLL_INTERVAL_MS = 4000;
 
 // F3. 유사도 매칭 화면
 // status: NOT_REQUESTED(수락/거부 선택) | PENDING(매칭중) | MATCHED(완료) | DECLINED(거부함)
+//
+// 보안 참고: 백엔드가 revealedToMe=false여도 similarityScore/scoreBreakdown을
+// 응답에 그대로 채워서 보낸다(서버 사이드 게이팅 미반영, 알려진 이슈).
+// 그래서 FE에서 반드시 revealedToMe가 true일 때만 이 값들을 화면에 그려야 한다.
+// F5(양방향 공개, 2단계 게이트) 붙으면 이 부분 전체를 새 상태값 기준으로 다시 짜야 함.
 export default function MatchPage({ onGoToUpload }) {
   const [state, setState] = useState('checking'); // checking | not_requested | pending | matched | declined | no-analysis | error
   const [match, setMatch] = useState(null);
@@ -49,13 +54,10 @@ export default function MatchPage({ onGoToUpload }) {
       pollTimer.current = setTimeout(poll, POLL_INTERVAL_MS);
       return;
     }
-    // NOT_REQUESTED
     setState('not_requested');
   }
 
   async function poll() {
-    // 스펙상 "매칭중…" 화면에서는 GET이 아니라 POST /api/matches를 반복 호출해야
-    // 실제로 매칭이 진행됨
     try {
       const data = await acceptAndAttemptMatch();
       applyStatus(data);
@@ -183,20 +185,22 @@ export default function MatchPage({ onGoToUpload }) {
               : '오늘의 상대가 정해졌어요'}
           </p>
 
-          <MatchScoreCard score={match.similarityScore} breakdown={match.scoreBreakdown} />
-
           {match.revealedToMe ? (
-            <div className="match-reveal-row">
-              <div className="match-reveal-row__text">
-                <span className="match-reveal-row__label">
-                  {match.partnerNickname} · {match.partnerCampus}
-                </span>
+            <>
+              <MatchScoreCard score={match.similarityScore} breakdown={match.scoreBreakdown} />
+              <div className="match-reveal-row">
+                <div className="match-reveal-row__text">
+                  <span className="match-reveal-row__label">
+                    {match.partnerNickname} · {match.partnerCampus}
+                  </span>
+                </div>
               </div>
-            </div>
+            </>
           ) : (
             <div className="match-state">
               <p className="screen-sub">
-                다음 단계(연락처 교환 방식)는 아직 논의 중이에요. 정해지면 여기서 이어질 예정이에요.
+                상대 공개 기능(F5)이 곧 추가돼요. 준비되면 여기서 상대 사진을 보고
+                대화할지 직접 선택할 수 있어요.
               </p>
             </div>
           )}

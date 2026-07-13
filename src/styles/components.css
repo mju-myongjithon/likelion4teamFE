@@ -528,6 +528,10 @@
   padding-left: 44px;
   margin-top: -4px;
 }
+.match-breakdown__keywords--empty {
+  color: var(--color-text-faint);
+  font-style: italic;
+}
 
 /* ---------- Icebreaker questions (F6 — 아직 미사용, 붙을 때 대비해 유지) ---------- */
 .icebreaker {
