@@ -383,3 +383,259 @@
   padding: 2px 6px;
   border-radius: 5px;
 }
+
+/* ---------- 버튼 안 아이콘 정렬 (Match 화면에서 아이콘+텍스트 버튼 사용) ---------- */
+.btn-primary,
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ---------- Match screen — 상태 화면 공통(대기/거부/에러 등) ---------- */
+.match-state {
+  text-align: center;
+  padding: var(--sp-7) 0 var(--sp-4);
+}
+
+.match-state__icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--sp-4);
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.match-state .btn-primary {
+  width: auto;
+  margin: var(--sp-4) auto 0;
+  padding: 12px var(--sp-5);
+}
+
+/* ---------- 매칭 수락/거부 버튼 줄 ---------- */
+.match-decision-row {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+.match-decision-row .btn-primary,
+.match-decision-row .btn-secondary {
+  width: auto;
+  flex: 1;
+}
+
+/* ---------- Match score card (F3 결과 / F8 근거) ---------- */
+.match-score-card {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-elevated);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.match-score-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+}
+
+.match-score-card__label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.match-score-card__value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-match);
+}
+
+.match-breakdown {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.match-breakdown__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.match-breakdown__icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-faint);
+}
+
+.match-breakdown__icon[data-matched='true'] {
+  color: var(--color-match-strong);
+  background: rgba(233, 75, 138, 0.14);
+}
+
+.match-breakdown__label {
+  width: 44px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.match-breakdown__bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-bg-elevated-2);
+  overflow: hidden;
+}
+
+.match-breakdown__bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--color-match);
+  transition: width var(--dur-med) var(--ease-develop);
+}
+
+.match-breakdown__points {
+  width: 24px;
+  flex-shrink: 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+.match-breakdown__keywords {
+  flex-basis: 100%;
+  font-size: 11px;
+  color: var(--color-text-faint);
+  padding-left: 44px;
+  margin-top: -4px;
+}
+.match-breakdown__keywords--empty {
+  color: var(--color-text-faint);
+  font-style: italic;
+}
+
+/* ---------- Icebreaker questions (F6 — 아직 미사용, 붙을 때 대비해 유지) ---------- */
+.icebreaker {
+  margin-bottom: var(--sp-4);
+}
+
+.icebreaker__toggle {
+  width: auto;
+  padding: 10px var(--sp-4);
+}
+
+.icebreaker__list {
+  list-style: none;
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.icebreaker__item {
+  font-size: 13px;
+  color: var(--color-text);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-line-soft);
+  border-radius: 10px;
+  padding: var(--sp-3);
+}
+
+/* ---------- Reveal row (상대 닉네임/캠퍼스 공개) ---------- */
+.match-reveal-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-elevated);
+  margin-bottom: var(--sp-4);
+}
+
+.match-partner-thumb {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--color-bg-elevated-2), var(--color-line));
+  filter: blur(0);
+  transition: filter var(--dur-fast) ease;
+}
+
+.match-partner-thumb.is-blurred {
+  filter: blur(6px) saturate(0.9);
+}
+
+.match-reveal-row__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.match-reveal-row__label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.match-reveal-row__text .btn-secondary {
+  width: auto;
+  padding: 8px var(--sp-3);
+  font-size: 13px;
+}
+
+.match-screen__footer {
+  margin-top: auto;
+  padding-top: var(--sp-2);
+}
+/* ---------- Feature tags (F2 — 시간대/분위기/색감) ---------- */
+.feature-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.feature-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text);
+  background: var(--color-bg-elevated-2);
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+}
+
+.feature-tag__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.feature-tag__icon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}

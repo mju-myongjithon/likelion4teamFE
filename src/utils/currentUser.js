@@ -1,0 +1,1 @@
+export const CURRENT_USER_ID = '45ff4868-cb63-4b5b-bdbe-be514e87341e';

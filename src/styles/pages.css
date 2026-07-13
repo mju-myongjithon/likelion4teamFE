@@ -2,3 +2,7 @@
   margin-top: auto;
   padding-top: var(--sp-2);
 }
+
+.analysis-screen__footer {
+  margin-top: var(--sp-6);
+}

@@ -59,7 +59,7 @@ export default function UploadPage({ onUploaded }) {
       );
       onUploaded(uploaded);
     } catch (err) {
-      setError('업로드에 실패했어요. 다시 시도해주세요');
+      setError(err.message ?? '업로드에 실패했어요. 다시 시도해주세요');
     } finally {
       setIsUploading(false);
     }
