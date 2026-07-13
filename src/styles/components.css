@@ -609,6 +609,62 @@
   margin-top: auto;
   padding-top: var(--sp-2);
 }
+
+/* ---------- 매칭 발견(2b3) ---------- */
+.match-found {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* TODO(F5 reveal): 상대 사진이 백엔드에서 내려오기 전까지의 자리표시자 */
+.match-photos-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  border: 1px dashed var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-faint);
+  font-size: 13px;
+}
+
+/* ---------- AI 코멘트(2c) — TODO(F4): 필드 생기면 placeholder 교체 ---------- */
+.match-ai-comment {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-elevated);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.match-ai-comment__label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--color-text-faint);
+  margin-bottom: var(--sp-2);
+}
+
+.match-ai-comment__body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.match-ai-comment__placeholder {
+  color: var(--color-text-faint);
+  font-style: italic;
+}
+
+.match-hint {
+  margin: var(--sp-2) 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
 /* ---------- Feature tags (F2 — 시간대/분위기/색감) ---------- */
 .feature-tags {
   display: flex;
