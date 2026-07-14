@@ -12,6 +12,29 @@ import {
 
 const POLL_INTERVAL_MS = 4000;
 
+// 상대의 오늘 사진(업로드 시 얼굴 블러됨)과 대표 태그. 백엔드가 MATCHED부터 내려준다.
+// 2b3(매칭 발견)·2c(매칭 완료) 양쪽에서 재사용한다.
+function PartnerReveal({ photoUrls, tags }) {
+  return (
+    <>
+      {photoUrls?.length > 0 && (
+        <div className="match-partner-photos">
+          {photoUrls.map((url, i) => (
+            <img key={i} src={url} alt="상대의 오늘 사진" className="match-partner-photo" />
+          ))}
+        </div>
+      )}
+      {tags?.length > 0 && (
+        <div className="match-tags">
+          {tags.map((t) => (
+            <span key={t} className="match-tag">{t}</span>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 // F3. 유사도 매칭 화면 — 백엔드 게이트2(채팅 참여)까지 반영.
 // 상태(status)가 화면과 1:1로 대응한다:
 //   NOT_REQUESTED  → 참여 확인(2b1)
@@ -22,8 +45,7 @@ const POLL_INTERVAL_MS = 4000;
 //   ENDED          → 매칭 종료(2d)
 //   DECLINED       → 게이트1 거부(참여 안 함)
 //
-// 미구현 데이터(placeholder + TODO): 상대 사진, AI 코멘트, 2b3 상대 태그.
-// 백엔드 열린 항목이 뚫리면 placeholder만 실데이터로 교체하면 된다.
+// 상대 사진·태그·AI 코멘트는 백엔드 연동 완료. 남은 미구현은 채팅(F5)뿐(버튼 비활성).
 export default function MatchPage({ onGoToUpload }) {
   const [state, setState] = useState('checking');
   const [match, setMatch] = useState(null);
@@ -214,12 +236,8 @@ export default function MatchPage({ onGoToUpload }) {
         <div className="match-found">
           <h1 className="screen-title">나랑 가장 비슷한 하루를 보낸 사람을 발견했어요!</h1>
 
-          {/* TODO(F5 reveal): 상대 사진 3장(블러). MatchResponse에 상대 오늘 사진 URL이 추가되면 이 placeholder 교체 */}
-          <div className="match-photos-placeholder" aria-hidden="true">
-            상대 사진은 공개 준비 중이에요
-          </div>
-
-          {/* TODO(2b3 태그): commonTags는 CONNECTED에서만 열림 → 게이팅 완화되면 상대 태그 표시 */}
+          {/* 상대 사진(업로드 시 얼굴 블러됨)·태그 — 백엔드가 MATCHED부터 내려줌 */}
+          <PartnerReveal photoUrls={match.partnerPhotoUrls} tags={match.partnerTags} />
 
           <div className="match-reveal-row">
             <div className="match-partner-thumb is-blurred" />
@@ -268,7 +286,9 @@ export default function MatchPage({ onGoToUpload }) {
       {state === 'connected' && match && (
         <>
           <h1 className="screen-title">{match.partnerNickname}님과 매칭됐어요</h1>
-          <p className="screen-sub">{match.partnerCampus} 학생과 대화를 시작할 수 있어요</p>
+          <p className="screen-sub">{match.partnerCampus}캠퍼스 학생과 대화를 시작할 수 있어요</p>
+
+          <PartnerReveal photoUrls={match.partnerPhotoUrls} tags={match.partnerTags} />
 
           <MatchScoreCard score={match.similarityScore} breakdown={match.scoreBreakdown} />
 
