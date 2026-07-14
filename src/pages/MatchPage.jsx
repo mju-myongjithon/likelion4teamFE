@@ -272,13 +272,13 @@ export default function MatchPage({ onGoToUpload }) {
 
           <MatchScoreCard score={match.similarityScore} breakdown={match.scoreBreakdown} />
 
-          {/* TODO(F4 AI 코멘트): MatchResponse에 aiComment 필드가 추가되면 placeholder 교체 */}
+          {/* aiComment는 CONNECTED 시점에 F4로 생성된다. null이면 생성 실패이므로 실패 문구로 대체(매칭 자체는 정상). */}
           <div className="match-ai-comment">
             <span className="match-ai-comment__label">AI 코멘트</span>
             <p className="match-ai-comment__body">
               {match.aiComment ?? (
                 <span className="match-ai-comment__placeholder">
-                  AI 코멘트는 곧 제공될 예정이에요
+                  AI 코멘트를 불러오지 못했어요
                 </span>
               )}
             </p>
