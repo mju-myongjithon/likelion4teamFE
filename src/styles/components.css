@@ -427,6 +427,9 @@
 .match-decision-row .btn-secondary {
   width: auto;
   flex: 1;
+  /* .match-state .btn-primary 의 padding(12px)·margin 오염을 덮어써, 두 버튼을 동일한 크기·정렬로 맞춘다 */
+  margin: 0;
+  padding: 16px var(--sp-5);
 }
 
 /* ---------- Match score card (F3 결과 / F8 근거) ---------- */
