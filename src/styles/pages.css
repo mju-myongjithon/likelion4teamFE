@@ -28,7 +28,7 @@
 .profile-setup__logo {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 28px;
+  font-size: 60px;
   letter-spacing: -0.01em;
   color: var(--color-text);
 }
@@ -39,9 +39,26 @@
   color: var(--color-text-muted);
 }
 
+/* 닉네임 입력은 넓게, 캠퍼스 선택은 오른쪽에 고정폭으로 붙인다 */
+.profile-setup__row {
+  display: flex;
+  gap: var(--sp-2);
+  width: 100%;
+}
+
+.profile-setup__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-setup__select-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 132px;
+}
+
 .profile-setup__input,
 .profile-setup__select {
-  width: 100%;
   padding: 14px var(--sp-4);
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-line);
@@ -56,7 +73,19 @@
 }
 
 .profile-setup__select {
+  width: 100%;
+  padding-right: 34px; /* 화살표 아이콘 자리 */
   appearance: none;
-  text-align: center;
-  text-align-last: center;
+  cursor: pointer;
+}
+
+/* 네이티브 화살표 대신 브라우저 전반에 일관되게 보이는 아이콘을 직접 얹는다 —
+   드롭박스라는 게 한눈에 보이도록(요청사항) */
+.profile-setup__select-icon {
+  position: absolute;
+  right: var(--sp-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-faint);
+  pointer-events: none;
 }

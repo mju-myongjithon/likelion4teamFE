@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { createGuestUser } from '../api/userApi';
 
 // F0. 사진 업로드 전에 뜨는 게스트 프로필 입력 화면.
@@ -32,24 +33,29 @@ export default function ProfileSetupPage({ onComplete }) {
         <span className="profile-setup__logo">Sync.day</span>
         <p className="profile-setup__subtitle">오늘의 순간을 기록하세요</p>
 
-        <input
-          className="profile-setup__input"
-          type="text"
-          placeholder="닉네임을 입력해주세요"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          maxLength={50}
-          autoFocus
-        />
+        <div className="profile-setup__row">
+          <input
+            className="profile-setup__input"
+            type="text"
+            placeholder="닉네임을 입력해주세요"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            maxLength={50}
+            autoFocus
+          />
 
-        <select
-          className="profile-setup__select"
-          value={campus}
-          onChange={(e) => setCampus(e.target.value)}
-        >
-          <option value="HUMANITIES">인문캠퍼스</option>
-          <option value="NATURAL">자연캠퍼스</option>
-        </select>
+          <div className="profile-setup__select-wrap">
+            <select
+              className="profile-setup__select"
+              value={campus}
+              onChange={(e) => setCampus(e.target.value)}
+            >
+              <option value="HUMANITIES">인문캠퍼스</option>
+              <option value="NATURAL">자연캠퍼스</option>
+            </select>
+            <ChevronDown size={16} strokeWidth={2} className="profile-setup__select-icon" />
+          </div>
+        </div>
 
         {error && <p className="form-error">{error}</p>}
 
