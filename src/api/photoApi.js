@@ -1,5 +1,5 @@
 import { API_BASE_URL, assertApiBaseUrl } from './client';
-import { CURRENT_USER_ID } from '../utils/currentUser';
+import { getCurrentUserId } from '../utils/currentUser';
 
 export async function uploadPhotos(files, isPrivacyMode) {
   assertApiBaseUrl();
@@ -14,7 +14,7 @@ export async function uploadPhotos(files, isPrivacyMode) {
 
 async function uploadSinglePhoto(file, isPrivacyMode) {
   const formData = new FormData();
-  formData.append('userId', CURRENT_USER_ID);
+  formData.append('userId', getCurrentUserId());
   formData.append('isPrivacyMode', String(isPrivacyMode));
   formData.append('file', file);
 
@@ -31,7 +31,7 @@ export async function getPhotoStatus() {
   assertApiBaseUrl();
 
   const response = await safeFetch(
-    `${API_BASE_URL}/api/photos/status?userId=${CURRENT_USER_ID}`,
+    `${API_BASE_URL}/api/photos/status?userId=${getCurrentUserId()}`,
     { method: 'GET' }
   );
 
@@ -46,7 +46,7 @@ export async function getTodayPhotos() {
   assertApiBaseUrl();
 
   const response = await safeFetch(
-    `${API_BASE_URL}/api/photos?userId=${CURRENT_USER_ID}`,
+    `${API_BASE_URL}/api/photos?userId=${getCurrentUserId()}`,
     { method: 'GET' }
   );
 

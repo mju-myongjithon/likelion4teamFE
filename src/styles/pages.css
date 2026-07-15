@@ -6,3 +6,57 @@
 .analysis-screen__footer {
   margin-top: var(--sp-6);
 }
+
+/* ---------- F0. 게스트 프로필 입력 (화면 정중앙, 세로 배치) ---------- */
+.profile-setup {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-5);
+}
+
+.profile-setup__card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  text-align: center;
+}
+
+.profile-setup__logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.profile-setup__subtitle {
+  margin: calc(-1 * var(--sp-3)) 0 var(--sp-2);
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.profile-setup__input,
+.profile-setup__select {
+  width: 100%;
+  padding: 14px var(--sp-4);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-line);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+
+.profile-setup__input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.profile-setup__select {
+  appearance: none;
+  text-align: center;
+  text-align-last: center;
+}
