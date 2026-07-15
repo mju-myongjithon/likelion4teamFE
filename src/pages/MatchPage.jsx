@@ -12,6 +12,10 @@ import {
 
 const POLL_INTERVAL_MS = 4000;
 
+function campusLabel(campus) {
+  return campus === 'NATURAL' ? '자연' : '인문';
+}
+
 // 상대의 오늘 사진(업로드 시 얼굴 블러됨)과 대표 태그. 백엔드가 MATCHED부터 내려준다.
 // 2b3(매칭 발견)·2c(매칭 완료) 양쪽에서 재사용한다.
 function PartnerReveal({ photoUrls, tags }) {
@@ -243,7 +247,7 @@ export default function MatchPage({ onGoToUpload }) {
             <div className="match-partner-thumb is-blurred" />
             <div className="match-reveal-row__text">
               <span className="match-reveal-row__label">
-                {match.partnerNickname} · {match.partnerCampus}
+                {match.partnerNickname} · {campusLabel(match.partnerCampus)}캠퍼스
               </span>
             </div>
           </div>
@@ -286,7 +290,7 @@ export default function MatchPage({ onGoToUpload }) {
       {state === 'connected' && match && (
         <>
           <h1 className="screen-title">{match.partnerNickname}님과 매칭됐어요</h1>
-          <p className="screen-sub">{match.partnerCampus}캠퍼스 학생과 대화를 시작할 수 있어요</p>
+          <p className="screen-sub">{campusLabel(match.partnerCampus)}캠퍼스 학생과 대화를 시작할 수 있어요</p>
 
           <PartnerReveal photoUrls={match.partnerPhotoUrls} tags={match.partnerTags} />
 
