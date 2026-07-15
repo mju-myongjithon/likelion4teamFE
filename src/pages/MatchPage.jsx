@@ -1,23 +1,61 @@
 import { useEffect, useRef, useState } from 'react';
-import { RefreshCw, X, Check } from 'lucide-react';
+import { RefreshCw, X, Check, MessageCircle } from 'lucide-react';
 import SyncCharacter from '../components/SyncCharacter';
 import MatchScoreCard from '../components/MatchScoreCard';
-import { checkTodayMatch, acceptAndAttemptMatch, declineMatch } from '../api/matchApi';
+import {
+  checkTodayMatch,
+  acceptAndAttemptMatch,
+  declineMatch,
+  acceptChat,
+  rejectChat,
+} from '../api/matchApi';
 
 const POLL_INTERVAL_MS = 4000;
 
-// F3. 유사도 매칭 화면
-// status: NOT_REQUESTED(수락/거부 선택) | PENDING(매칭중) | MATCHED(완료) | DECLINED(거부함)
+function campusLabel(campus) {
+  return campus === 'NATURAL' ? '자연' : '인문';
+}
+
+// 상대의 오늘 사진(업로드 시 얼굴 블러됨)과 대표 태그. 백엔드가 MATCHED부터 내려준다.
+// 2b3(매칭 발견)·2c(매칭 완료) 양쪽에서 재사용한다.
+function PartnerReveal({ photoUrls, tags }) {
+  return (
+    <>
+      {photoUrls?.length > 0 && (
+        <div className="match-partner-photos">
+          {photoUrls.map((url, i) => (
+            <img key={i} src={url} alt="상대의 오늘 사진" className="match-partner-photo" />
+          ))}
+        </div>
+      )}
+      {tags?.length > 0 && (
+        <div className="match-tags">
+          {tags.map((t) => (
+            <span key={t} className="match-tag">{t}</span>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+// F3. 유사도 매칭 화면 — 백엔드 게이트2(채팅 참여)까지 반영.
+// 상태(status)가 화면과 1:1로 대응한다:
+//   NOT_REQUESTED  → 참여 확인(2b1)
+//   PENDING        → 매칭 대기(2b2)      [POST /api/matches 폴링]
+//   MATCHED        → 매칭 발견(2b3)      [상대 공개 + 채팅 수락/거절]
+//   AWAITING_PARTNER → 상대 응답 대기(2b4) [GET /today 폴링]
+//   CONNECTED      → 매칭 완료(2c)       [유사도/근거 공개, 채팅은 F5]
+//   ENDED          → 매칭 종료(2d)
+//   DECLINED       → 게이트1 거부(참여 안 함)
 //
-// 보안 참고: 백엔드가 revealedToMe=false여도 similarityScore/scoreBreakdown을
-// 응답에 그대로 채워서 보낸다(서버 사이드 게이팅 미반영, 알려진 이슈).
-// 그래서 FE에서 반드시 revealedToMe가 true일 때만 이 값들을 화면에 그려야 한다.
-// F5(양방향 공개, 2단계 게이트) 붙으면 이 부분 전체를 새 상태값 기준으로 다시 짜야 함.
+// 상대 사진·태그·AI 코멘트는 백엔드 연동 완료. 남은 미구현은 채팅(F5)뿐(버튼 비활성).
 export default function MatchPage({ onGoToUpload }) {
-  const [state, setState] = useState('checking'); // checking | not_requested | pending | matched | declined | no-analysis | error
+  const [state, setState] = useState('checking');
   const [match, setMatch] = useState(null);
-  const [isAccepting, setIsAccepting] = useState(false);
-  const [isDeclining, setIsDeclining] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false); // 게이트1 수락
+  const [isDeclining, setIsDeclining] = useState(false); // 게이트1 거부
+  const [isChatDeciding, setIsChatDeciding] = useState(false); // 게이트2 수락/거부
   const pollTimer = useRef(null);
   const hasStarted = useRef(false);
 
@@ -32,35 +70,62 @@ export default function MatchPage({ onGoToUpload }) {
   async function checkInitialStatus() {
     setState('checking');
     try {
-      const data = await checkTodayMatch();
-      applyStatus(data);
+      applyStatus(await checkTodayMatch());
     } catch (err) {
       handleError(err);
     }
   }
 
+  // 응답 status를 화면 상태로 매핑하고, 필요한 폴링을 건다.
   function applyStatus(data) {
-    if (data.status === 'MATCHED' && data.match) {
+    clearTimeout(pollTimer.current);
+    const status = data.status;
+
+    if (status === 'MATCHED' && data.match) {
       setMatch(data.match);
       setState('matched');
       return;
     }
-    if (data.status === 'DECLINED') {
+    if (status === 'AWAITING_PARTNER' && data.match) {
+      setMatch(data.match);
+      setState('awaiting_partner');
+      pollTimer.current = setTimeout(pollAwaiting, POLL_INTERVAL_MS); // 상대 수락을 조회만 폴링
+      return;
+    }
+    if (status === 'CONNECTED' && data.match) {
+      setMatch(data.match);
+      setState('connected');
+      return;
+    }
+    if (status === 'ENDED') {
+      setState('ended');
+      return;
+    }
+    if (status === 'DECLINED') {
       setState('declined');
       return;
     }
-    if (data.status === 'PENDING') {
+    if (status === 'PENDING') {
       setState('pending');
-      pollTimer.current = setTimeout(poll, POLL_INTERVAL_MS);
+      pollTimer.current = setTimeout(pollPending, POLL_INTERVAL_MS); // 실제 매칭을 진행시키는 폴링
       return;
     }
     setState('not_requested');
   }
 
-  async function poll() {
+  // 2b2: POST /api/matches 를 반복 호출해 매칭을 진행시킨다.
+  async function pollPending() {
     try {
-      const data = await acceptAndAttemptMatch();
-      applyStatus(data);
+      applyStatus(await acceptAndAttemptMatch());
+    } catch (err) {
+      handleError(err);
+    }
+  }
+
+  // 2b4: 내 채팅 수락은 이미 끝났으므로 GET 으로 상대 응답만 지켜본다.
+  async function pollAwaiting() {
+    try {
+      applyStatus(await checkTodayMatch());
     } catch (err) {
       handleError(err);
     }
@@ -74,11 +139,11 @@ export default function MatchPage({ onGoToUpload }) {
     setState('error');
   }
 
+  // ---- 게이트1: 매칭 참여 수락/거부 ----
   async function handleAccept() {
     setIsAccepting(true);
     try {
-      const data = await acceptAndAttemptMatch();
-      applyStatus(data);
+      applyStatus(await acceptAndAttemptMatch());
     } catch (err) {
       handleError(err);
     } finally {
@@ -89,12 +154,34 @@ export default function MatchPage({ onGoToUpload }) {
   async function handleDecline() {
     setIsDeclining(true);
     try {
-      const data = await declineMatch();
-      applyStatus(data);
+      applyStatus(await declineMatch());
     } catch (err) {
       handleError(err);
     } finally {
       setIsDeclining(false);
+    }
+  }
+
+  // ---- 게이트2: 채팅 참여 수락/거부 ----
+  async function handleAcceptChat() {
+    setIsChatDeciding(true);
+    try {
+      applyStatus(await acceptChat());
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setIsChatDeciding(false);
+    }
+  }
+
+  async function handleRejectChat() {
+    setIsChatDeciding(true);
+    try {
+      applyStatus(await rejectChat());
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setIsChatDeciding(false);
     }
   }
 
@@ -148,10 +235,115 @@ export default function MatchPage({ onGoToUpload }) {
         </>
       )}
 
+      {/* 2b3 매칭 발견 — 상대 공개 + 채팅 수락/거절 */}
+      {state === 'matched' && match && (
+        <div className="match-found">
+          <h1 className="screen-title">나랑 가장 비슷한 하루를 보낸 사람을 발견했어요!</h1>
+
+          {/* 상대 사진(업로드 시 얼굴 블러됨)·태그 — 백엔드가 MATCHED부터 내려줌 */}
+          <PartnerReveal photoUrls={match.partnerPhotoUrls} tags={match.partnerTags} />
+
+          <div className="match-reveal-row">
+            <div className="match-partner-thumb is-blurred" />
+            <div className="match-reveal-row__text">
+              <span className="match-reveal-row__label">
+                {match.partnerNickname} · {campusLabel(match.partnerCampus)}캠퍼스
+              </span>
+            </div>
+          </div>
+
+          <p className="screen-sub">유사도와 AI 코멘트는 대화를 시작하면 확인할 수 있어요</p>
+
+          <div className="match-decision-row">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleRejectChat}
+              disabled={isChatDeciding}
+            >
+              <X size={16} strokeWidth={2} />
+              거절
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleAcceptChat}
+              disabled={isChatDeciding}
+            >
+              <Check size={16} strokeWidth={2} />
+              {isChatDeciding ? '처리 중…' : '수락하기'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 2b4 상대 응답 대기 */}
+      {state === 'awaiting_partner' && match && (
+        <>
+          <h1 className="screen-title">{match.partnerNickname}님의 응답을 기다리는 중…</h1>
+          <p className="screen-sub">상대가 대화를 수락하면 알려드릴게요</p>
+          <SyncCharacter />
+        </>
+      )}
+
+      {/* 2c 매칭 완료 — 유사도/근거 공개, 채팅은 F5 */}
+      {state === 'connected' && match && (
+        <>
+          <h1 className="screen-title">{match.partnerNickname}님과 매칭됐어요</h1>
+          <p className="screen-sub">{campusLabel(match.partnerCampus)}캠퍼스 학생과 대화를 시작할 수 있어요</p>
+
+          <PartnerReveal photoUrls={match.partnerPhotoUrls} tags={match.partnerTags} />
+
+          <MatchScoreCard score={match.similarityScore} breakdown={match.scoreBreakdown} />
+
+          {/* aiComment는 CONNECTED 시점에 F4로 생성된다. null이면 생성 실패이므로 실패 문구로 대체(매칭 자체는 정상). */}
+          <div className="match-ai-comment">
+            <span className="match-ai-comment__label">AI 코멘트</span>
+            <p className="match-ai-comment__body">
+              {match.aiComment ?? (
+                <span className="match-ai-comment__placeholder">
+                  AI 코멘트를 불러오지 못했어요
+                </span>
+              )}
+            </p>
+          </div>
+
+          {/* TODO(F5 채팅): 채팅(2e)은 F5 담당. connectedAt 신호로 F5가 방을 열면 여기서 이동 */}
+          <div className="match-screen__footer">
+            <button type="button" className="btn-primary" disabled title="채팅(F5) 준비 중">
+              <MessageCircle size={16} strokeWidth={2} />
+              채팅 시작하기
+            </button>
+            <p className="match-hint">채팅 기능(F5)은 곧 추가돼요</p>
+          </div>
+        </>
+      )}
+
+      {/* 2d 매칭 종료 */}
+      {state === 'ended' && (
+        <div className="match-state">
+          <div className="match-state__icon">
+            <X size={24} strokeWidth={1.5} />
+          </div>
+          <h1 className="screen-title">오늘은 여기까지예요</h1>
+          <p className="screen-sub">
+            이번 매칭은 대화로 이어지지 않았어요. 내일 다시 새로운 하루를 기록해보세요.
+          </p>
+        </div>
+      )}
+
       {state === 'declined' && (
         <div className="match-state">
           <h1 className="screen-title">오늘은 매칭을 쉬어가요</h1>
-          <p className="screen-sub">내일 다시 참여할 수 있어요</p>
+          <p className="screen-sub">마음이 바뀌면 지금 다시 참여할 수 있어요</p>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={handleAccept}
+            disabled={isAccepting}
+          >
+            {isAccepting ? '참여하는 중…' : '매칭 참여하기'}
+          </button>
         </div>
       )}
 
@@ -174,37 +366,6 @@ export default function MatchPage({ onGoToUpload }) {
             다시 시도하기
           </button>
         </div>
-      )}
-
-      {state === 'matched' && match && (
-        <>
-          <h1 className="screen-title">오늘의 매칭</h1>
-          <p className="screen-sub">
-            {match.revealedToMe
-              ? `${match.partnerNickname}님과 ${match.similarityScore}% 닮았어요`
-              : '오늘의 상대가 정해졌어요'}
-          </p>
-
-          {match.revealedToMe ? (
-            <>
-              <MatchScoreCard score={match.similarityScore} breakdown={match.scoreBreakdown} />
-              <div className="match-reveal-row">
-                <div className="match-reveal-row__text">
-                  <span className="match-reveal-row__label">
-                    {match.partnerNickname} · {match.partnerCampus}
-                  </span>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="match-state">
-              <p className="screen-sub">
-                상대 공개 기능(F5)이 곧 추가돼요. 준비되면 여기서 상대 사진을 보고
-                대화할지 직접 선택할 수 있어요.
-              </p>
-            </div>
-          )}
-        </>
       )}
     </div>
   );
