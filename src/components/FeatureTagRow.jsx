@@ -4,16 +4,16 @@ import { Sunrise, Sun, Sunset, Moon, Clock } from 'lucide-react';
 // AI가 자유 텍스트로 뽑아내는 값이라 전부 커버는 못 하고, 매칭 안 되면
 // 회색 점(중립)으로 대체된다.
 const COLOR_KEYWORD_MAP = [
-  { match: ['빨강', '레드', 'red'], value: '#E5484D' },
+  { match: ['빨강', '빨간', '레드', 'red'], value: '#E5484D' },
   { match: ['주황', '오렌지', 'orange'], value: '#F76B15' },
-  { match: ['노랑', '옐로우', 'yellow'], value: '#F5D90A' },
+  { match: ['노랑', '노란', '옐로우', 'yellow'], value: '#F5D90A' },
   { match: ['초록', '그린', 'green'], value: '#30A46C' },
-  { match: ['파랑', '블루', 'blue'], value: '#0091FF' },
+  { match: ['파랑', '파란', '블루', 'blue'], value: '#0091FF' },
   { match: ['남색', '네이비', 'navy'], value: '#104D8C' },
   { match: ['보라', '퍼플', 'purple'], value: '#8E4EC6' },
   { match: ['분홍', '핑크', 'pink'], value: '#E93D82' },
   { match: ['갈색', '브라운', 'brown'], value: '#9A6A3F' },
-  { match: ['회색', '그레이', 'gray', 'grey'], value: '#8B8D98' },
+  { match: ['흑백', '무채색', '회색', '그레이', 'gray', 'grey'], value: '#8B8D98' },
   { match: ['검정', '블랙', 'black'], value: '#2B2B2B' },
   { match: ['흰색', '화이트', 'white'], value: '#F0F0F0' },
   {
