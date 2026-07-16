@@ -80,7 +80,6 @@ export default function UploadPage({ onUploaded }) {
         type="file"
         accept="image/*"
         multiple
-        capture="environment"
         className="visually-hidden"
         onChange={handleFilesSelected}
       />
