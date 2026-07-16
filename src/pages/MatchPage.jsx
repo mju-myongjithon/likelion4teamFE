@@ -336,14 +336,26 @@ export default function MatchPage({ onGoToUpload }) {
         <div className="match-state">
           <h1 className="screen-title">오늘은 매칭을 쉬어가요</h1>
           <p className="screen-sub">마음이 바뀌면 지금 다시 참여할 수 있어요</p>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={handleAccept}
-            disabled={isAccepting}
-          >
-            {isAccepting ? '참여하는 중…' : '매칭 참여하기'}
-          </button>
+          <div className="match-decision-row">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleDecline}
+              disabled={isDeclining || isAccepting}
+            >
+              <X size={16} strokeWidth={2} />
+              오늘은 안 할래요
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleAccept}
+              disabled={isAccepting || isDeclining}
+            >
+              <Check size={16} strokeWidth={2} />
+              {isAccepting ? '수락하는 중…' : '매칭 수락'}
+            </button>
+          </div>
         </div>
       )}
 
