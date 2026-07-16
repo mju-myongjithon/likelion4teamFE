@@ -61,12 +61,33 @@ export default function MatchPage({ onGoToUpload, onDecline }) {
   const [isChatDeciding, setIsChatDeciding] = useState(false); // 게이트2 수락/거부
   const pollTimer = useRef(null);
   const hasStarted = useRef(false);
+  const stateRef = useRef(state); // 언마운트 클린업이 최신 state를 읽을 수 있도록 동기화
+  const isMountedRef = useRef(true); // 언마운트 후 늦게 도착한 응답이 상태를 건드리지 않도록 막는 가드
 
   useEffect(() => {
-    if (hasStarted.current) return;
-    hasStarted.current = true;
-    checkInitialStatus();
-    return () => clearTimeout(pollTimer.current);
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    // StrictMode(개발 모드)는 마운트를 "마운트→클린업→마운트"로 한 번 더 시뮬레이션한다.
+    // hasStarted는 그 두 번째 마운트에서 checkInitialStatus를 또 부르지 않게만 막아야 하고,
+    // 클린업 함수 자체는 매 마운트마다 항상 새로 등록돼야 한다 — 그래야 실제로 화면을
+    // 벗어날 때(진짜 마지막 마운트의 클린업) clearTimeout/취소 로직이 확실히 실행된다.
+    // isMountedRef도 같은 이유로 매 마운트마다 다시 켜줘야 한다.
+    isMountedRef.current = true;
+    if (!hasStarted.current) {
+      hasStarted.current = true;
+      checkInitialStatus();
+    }
+    return () => {
+      isMountedRef.current = false;
+      clearTimeout(pollTimer.current);
+      // 매칭중(PENDING)에 화면을 벗어나면 게이트1 수락을 취소한다.
+      // declineMatch는 이미 매칭이 성사된 뒤라면 안전하게 무시하므로(멱등) 그대로 재사용한다.
+      if (stateRef.current === 'pending') {
+        declineMatch().catch(() => {}); // 화면은 이미 떠났으니 실패해도 무시
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -81,6 +102,7 @@ export default function MatchPage({ onGoToUpload, onDecline }) {
 
   // 응답 status를 화면 상태로 매핑하고, 필요한 폴링을 건다.
   function applyStatus(data) {
+    if (!isMountedRef.current) return; // 화면을 벗어난 뒤 늦게 온 응답은 무시 — 다음 폴링도 걸지 않는다
     clearTimeout(pollTimer.current);
     const status = data.status;
 
@@ -131,6 +153,7 @@ export default function MatchPage({ onGoToUpload, onDecline }) {
   }
 
   function handleError(err) {
+    if (!isMountedRef.current) return; // 화면을 벗어난 뒤 늦게 온 에러 응답도 동일하게 무시
     if (err.code === 'ANALYSIS_NOT_FOUND') {
       setState('no-analysis');
       return;
@@ -146,7 +169,7 @@ export default function MatchPage({ onGoToUpload, onDecline }) {
     } catch (err) {
       handleError(err);
     } finally {
-      setIsAccepting(false);
+      if (isMountedRef.current) setIsAccepting(false);
     }
   }
 
@@ -159,7 +182,7 @@ export default function MatchPage({ onGoToUpload, onDecline }) {
     } catch (err) {
       handleError(err);
     } finally {
-      setIsDeclining(false);
+      if (isMountedRef.current) setIsDeclining(false);
     }
   }
 
@@ -171,7 +194,7 @@ export default function MatchPage({ onGoToUpload, onDecline }) {
     } catch (err) {
       handleError(err);
     } finally {
-      setIsChatDeciding(false);
+      if (isMountedRef.current) setIsChatDeciding(false);
     }
   }
 
@@ -182,7 +205,7 @@ export default function MatchPage({ onGoToUpload, onDecline }) {
     } catch (err) {
       handleError(err);
     } finally {
-      setIsChatDeciding(false);
+      if (isMountedRef.current) setIsChatDeciding(false);
     }
   }
 
