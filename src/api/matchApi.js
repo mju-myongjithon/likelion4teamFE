@@ -1,5 +1,5 @@
 import { API_BASE_URL, assertApiBaseUrl } from './client';
-import { CURRENT_USER_ID } from '../utils/currentUser';
+import { getCurrentUserId } from '../utils/currentUser';
 
 /**
  * F3. 유사도 매칭 API 레이어 (실제 백엔드 연동 — 게이트2 채팅 참여 포함)
@@ -31,25 +31,25 @@ import { CURRENT_USER_ID } from '../utils/currentUser';
  */
 
 export async function checkTodayMatch() {
-  return callMatchApi(`${API_BASE_URL}/api/matches/today?userId=${CURRENT_USER_ID}`, 'GET');
+  return callMatchApi(`${API_BASE_URL}/api/matches/today?userId=${getCurrentUserId()}`, 'GET');
 }
 
 export async function acceptAndAttemptMatch() {
-  return callMatchApi(`${API_BASE_URL}/api/matches?userId=${CURRENT_USER_ID}`, 'POST');
+  return callMatchApi(`${API_BASE_URL}/api/matches?userId=${getCurrentUserId()}`, 'POST');
 }
 
 export async function declineMatch() {
-  return callMatchApi(`${API_BASE_URL}/api/matches/decline?userId=${CURRENT_USER_ID}`, 'POST');
+  return callMatchApi(`${API_BASE_URL}/api/matches/decline?userId=${getCurrentUserId()}`, 'POST');
 }
 
 // 게이트2: 매칭된 상대와 채팅을 수락한다. 양쪽 모두 수락하면 status=CONNECTED.
 export async function acceptChat() {
-  return callMatchApi(`${API_BASE_URL}/api/matches/chat/accept?userId=${CURRENT_USER_ID}`, 'POST');
+  return callMatchApi(`${API_BASE_URL}/api/matches/chat/accept?userId=${getCurrentUserId()}`, 'POST');
 }
 
 // 게이트2: 매칭된 상대와의 채팅을 거부한다. status=ENDED (그날 매칭 종료).
 export async function rejectChat() {
-  return callMatchApi(`${API_BASE_URL}/api/matches/chat/reject?userId=${CURRENT_USER_ID}`, 'POST');
+  return callMatchApi(`${API_BASE_URL}/api/matches/chat/reject?userId=${getCurrentUserId()}`, 'POST');
 }
 
 async function callMatchApi(url, method) {

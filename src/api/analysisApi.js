@@ -1,5 +1,5 @@
 import { API_BASE_URL, assertApiBaseUrl } from './client';
-import { CURRENT_USER_ID } from '../utils/currentUser';
+import { getCurrentUserId } from '../utils/currentUser';
 
 /**
  * F2. AI 사진 특징 분석 API 레이어 (실제 백엔드 연동)
@@ -24,12 +24,12 @@ import { CURRENT_USER_ID } from '../utils/currentUser';
  */
 
 export async function analyzePhotos() {
-  return callAnalysisApi(`${API_BASE_URL}/api/analysis`, 'POST', { userId: CURRENT_USER_ID });
+  return callAnalysisApi(`${API_BASE_URL}/api/analysis`, 'POST', { userId: getCurrentUserId() });
 }
 
 export async function getTodayAnalysis() {
   return callAnalysisApi(
-    `${API_BASE_URL}/api/analysis/today?userId=${CURRENT_USER_ID}`,
+    `${API_BASE_URL}/api/analysis/today?userId=${getCurrentUserId()}`,
     'GET'
   );
 }
