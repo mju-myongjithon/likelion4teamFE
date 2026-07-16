@@ -47,10 +47,13 @@ function PartnerReveal({ photoUrls, tags }) {
 //   AWAITING_PARTNER → 상대 응답 대기(2b4) [GET /today 폴링]
 //   CONNECTED      → 매칭 완료(2c)       [유사도/근거 공개, 채팅은 F5]
 //   ENDED          → 매칭 종료(2d)
-//   DECLINED       → 게이트1 거부(참여 안 함)
+//
+// DECLINED(게이트1 거부)는 별도 화면 없음 — "오늘은 안 할래요"를 누르면 그 즉시
+// 이전 화면(오늘의 기록)으로 돌아가고, 나중에 다시 "오늘의 매칭 보기"로 들어와도
+// NOT_REQUESTED와 동일하게 처음 참여 확인 화면을 그대로 다시 보여준다.
 //
 // 상대 사진·태그·AI 코멘트는 백엔드 연동 완료. 남은 미구현은 채팅(F5)뿐(버튼 비활성).
-export default function MatchPage({ onGoToUpload }) {
+export default function MatchPage({ onGoToUpload, onDecline }) {
   const [state, setState] = useState('checking');
   const [match, setMatch] = useState(null);
   const [isAccepting, setIsAccepting] = useState(false); // 게이트1 수락
@@ -101,10 +104,6 @@ export default function MatchPage({ onGoToUpload }) {
       setState('ended');
       return;
     }
-    if (status === 'DECLINED') {
-      setState('declined');
-      return;
-    }
     if (status === 'PENDING') {
       setState('pending');
       pollTimer.current = setTimeout(pollPending, POLL_INTERVAL_MS); // 실제 매칭을 진행시키는 폴링
@@ -151,10 +150,12 @@ export default function MatchPage({ onGoToUpload }) {
     }
   }
 
+  // 거부는 화면에 결과를 보여주지 않고, 서버에 기록만 남긴 뒤 바로 이전 화면(오늘의 기록)으로 돌아간다.
   async function handleDecline() {
     setIsDeclining(true);
     try {
-      applyStatus(await declineMatch());
+      await declineMatch();
+      onDecline();
     } catch (err) {
       handleError(err);
     } finally {
@@ -329,33 +330,6 @@ export default function MatchPage({ onGoToUpload }) {
           <p className="screen-sub">
             이번 매칭은 대화로 이어지지 않았어요. 내일 다시 새로운 하루를 기록해보세요.
           </p>
-        </div>
-      )}
-
-      {state === 'declined' && (
-        <div className="match-state">
-          <h1 className="screen-title">오늘은 매칭을 쉬어가요</h1>
-          <p className="screen-sub">마음이 바뀌면 지금 다시 참여할 수 있어요</p>
-          <div className="match-decision-row">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={handleDecline}
-              disabled={isDeclining || isAccepting}
-            >
-              <X size={16} strokeWidth={2} />
-              오늘은 안 할래요
-            </button>
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={handleAccept}
-              disabled={isAccepting || isDeclining}
-            >
-              <Check size={16} strokeWidth={2} />
-              {isAccepting ? '수락하는 중…' : '매칭 수락'}
-            </button>
-          </div>
         </div>
       )}
 
