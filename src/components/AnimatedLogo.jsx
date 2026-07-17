@@ -11,6 +11,7 @@ import {
   VIEW_BOX_WIDTH,
   WHITE,
 } from './SyncIcon';
+import { SLOWDOWN } from './loginIntroTiming';
 
 // 로그인(F0) 화면 전용 최초 진입 애니메이션. SyncCharacter.jsx 로딩 애니메이션과 같은 방식
 // (clipPath로 두 원의 교집합만 오려내 겹침색을 채우는 방식)을 그대로 가져오되, 여기선 루프
@@ -20,10 +21,6 @@ import {
 const FLY_DISTANCE = R * 4;
 const START_LEFT_CX = LEFT_CX - FLY_DISTANCE;
 const START_RIGHT_CX = RIGHT_CX + FLY_DISTANCE;
-
-// 속도를 20% 늦춘다(= 소요 시간을 1 / 0.8 = 1.25배로 늘린다). 아래 모든 duration·delay는
-// 이 배율을 거친 뒤의 최종 값이다.
-const SLOWDOWN = 1.25;
 
 // 날아와 도착하기까지(부르르 시작 전)와, 도착 후 부르르 떠는 구간의 기준 길이(초).
 const BASE_FLIGHT_DURATION = 1;
