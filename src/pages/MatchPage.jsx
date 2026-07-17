@@ -339,16 +339,27 @@ export default function MatchPage({ onGoToUpload, onDecline, onEnterChat }) {
         </>
       )}
 
-      {/* 2d 매칭 종료 */}
+      {/* 2d 매칭 종료 — 채팅방이 열리기 전에(게이트2에서) 끝난 경우라, 오늘의 매칭 기회는
+          아직 남아있다. BE가 이 종료된 매칭을 더 이상 막지 않으므로, "매칭 수락"과 같은
+          동작(handleAccept)으로 바로 다시 시도할 수 있다. */}
       {state === 'ended' && (
         <div className="match-state">
           <div className="match-state__icon">
             <X size={24} strokeWidth={1.5} />
           </div>
-          <h1 className="screen-title">오늘은 여기까지예요</h1>
+          <h1 className="screen-title">이번 매칭은 대화로 이어지지 않았어요</h1>
           <p className="screen-sub">
-            이번 매칭은 대화로 이어지지 않았어요. 내일 다시 새로운 하루를 기록해보세요.
+            채팅방이 열리기 전에 끝났어요. 오늘 다시 매칭을 시도할 수 있어요
           </p>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={handleAccept}
+            disabled={isAccepting}
+          >
+            <RefreshCw size={16} strokeWidth={2} />
+            {isAccepting ? '다시 시도하는 중…' : '다시 매칭 시도하기'}
+          </button>
         </div>
       )}
 
