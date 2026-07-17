@@ -87,7 +87,7 @@ export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch
 
       {status === 'idle' && (
         <>
-          <h1 className="screen-title">아직 오늘의 기록이 없어요</h1>
+          <h1 className="screen-title">아직 오늘의 순간이 없어요</h1>
           <p className="screen-sub">먼저 오늘의 사진을 올려주세요</p>
           <button type="button" className="btn-primary" onClick={onGoToUpload}>
             사진 올리러 가기
@@ -97,7 +97,7 @@ export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch
 
       {status === 'loading' && (
         <>
-          <h1 className="screen-title">오늘의 나를 분석하는 중</h1>
+          <h1 className="screen-title">AI가 오늘의 순간을 분석 하는 중…</h1>
           <p className="screen-sub">사진 속 장소, 시간, 분위기를 읽고 있어요.</p>
           <SyncCharacter />
         </>
@@ -115,7 +115,7 @@ export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch
 
       {status === 'done' && features && (
         <>
-          <h1 className="screen-title">오늘의 싱크</h1>
+          <h1 className="screen-title">오늘의 분석</h1>
           <p className="screen-sub">{features.summary}</p>
 
           <div className="trait-group-list">

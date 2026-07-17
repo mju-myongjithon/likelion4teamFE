@@ -103,7 +103,7 @@ export default function UploadPage({ onUploaded }) {
   if (isBlocked) {
     return (
       <div className="screen upload-screen">
-        <h1 className="screen-title">오늘은 이미 기록을 완료했어요</h1>
+        <h1 className="screen-title">오늘은 이미 분석을 완료했어요</h1>
         <p className="screen-sub">
           오늘의 분석은 한 번만 진행돼요. 내일 다시 새로운 하루를 기록해보세요
         </p>
@@ -139,7 +139,7 @@ export default function UploadPage({ onUploaded }) {
 
       <div className="upload-progress">
         <span>
-          오늘의 기록 완료{' '}
+          오늘의 순간{' '}
           <strong className={photos.length >= MIN_PHOTOS ? 'is-ready' : ''}>
             {Math.min(photos.length, MIN_PHOTOS)}/{MIN_PHOTOS}
           </strong>
@@ -158,7 +158,7 @@ export default function UploadPage({ onUploaded }) {
           disabled={!canContinue}
           onClick={handleContinue}
         >
-          {isUploading ? '업로드하는 중…' : '오늘의 나 분석하기'}
+          {isUploading ? '업로드하는 중…' : '오늘의 순간 분석하기'}
         </button>
       </div>
     </div>
