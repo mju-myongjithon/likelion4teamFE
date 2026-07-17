@@ -382,6 +382,10 @@
 .match-decision-row .btn-secondary {
   width: auto;
   flex: 1;
+  /* flex 아이템의 min-width 기본값(auto)은 nowrap 텍스트의 전체 너비만큼 잡혀서,
+     좁은 화면에서 두 버튼 합이 화면보다 넓어져도 줄어들지 못하고 오른쪽으로 밀려
+     나가버렸다(버튼이 화면 밖으로 잘리는 문제) — 0으로 풀어 화면 너비에 맞춰 줄어들게 한다 */
+  min-width: 0;
   /* .match-state .btn-primary 의 padding(12px)·margin 오염을 덮어써, 두 버튼을 동일한 크기·정렬로 맞춘다 */
   margin: 0;
   padding: 16px var(--sp-5);
