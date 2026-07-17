@@ -78,12 +78,9 @@ export default function AnalysisPage({ uploadedPhotos, onGoToUpload, onViewMatch
     <div className="screen analysis-screen">
       <p className="eyebrow">RESULT</p>
 
-      {status === 'checking' && (
-        <>
-          <h1 className="screen-title">오늘의 기록을 확인하는 중</h1>
-          <SyncCharacter />
-        </>
-      )}
+      {/* 'checking' 상태는 의도적으로 아무것도 렌더링하지 않는다 — F3/F5와 같은 이유로,
+          오늘 분석 여부 조회 응답이 워낙 빨라서 로딩 화면을 넣으면 오히려 한 프레임
+          반짝이는 것처럼 보였다. */}
 
       {status === 'idle' && (
         <>
