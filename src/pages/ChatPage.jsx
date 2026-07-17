@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { RefreshCw, Send, X } from 'lucide-react';
-import SyncCharacter from '../components/SyncCharacter';
 import { checkTodayMatch } from '../api/matchApi';
 import { sendMessage, pollMessages } from '../api/chatApi';
 
@@ -159,14 +158,10 @@ export default function ChatPage() {
     }
   }
 
+  // 'checking' 상태는 의도적으로 아무것도 렌더링하지 않는다 — F3 매칭 화면과 같은 이유로,
+  // 조회 응답이 워낙 빨라서 로딩 화면을 넣으면 오히려 한 프레임 반짝이는 것처럼 보였다.
   if (state === 'checking') {
-    return (
-      <div className="screen chat-screen">
-        <p className="eyebrow">CHAT</p>
-        <h1 className="screen-title">채팅방을 여는 중</h1>
-        <SyncCharacter />
-      </div>
-    );
+    return <div className="screen chat-screen" />;
   }
 
   if (state === 'not-connected') {
