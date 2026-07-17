@@ -20,7 +20,7 @@ export default function ProfileSetupPage({ onComplete }) {
     setError(null);
     try {
       const user = await createGuestUser(nickname.trim(), campus);
-      onComplete(user.userId);
+      onComplete(user);
     } catch (err) {
       setError(err.message ?? '유저 정보를 저장하지 못했어요');
       setIsSubmitting(false);

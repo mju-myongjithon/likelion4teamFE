@@ -7,7 +7,7 @@ import MatchPage from './pages/MatchPage';
 import ChatPage from './pages/ChatPage';
 import ProfilePage from './pages/ProfilePage';
 import ProfileSetupPage from './pages/ProfileSetupPage';
-import { getCurrentUserId, setCurrentUserId } from './utils/currentUser';
+import { getCurrentUserId, setCurrentUser } from './utils/currentUser';
 
 export default function App() {
   const [userId, setUserId] = useState(getCurrentUserId()); // F0 완료 전이면 null
@@ -15,9 +15,9 @@ export default function App() {
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
   const [resultView, setResultView] = useState('analysis'); // analysis | match
 
-  function handleProfileComplete(newUserId) {
-    setCurrentUserId(newUserId);
-    setUserId(newUserId);
+  function handleProfileComplete(user) {
+    setCurrentUser(user);
+    setUserId(user.userId);
   }
 
   function handleUploaded(photos) {

@@ -6,6 +6,27 @@
   margin-top: var(--sp-6);
 }
 
+/* ---------- F7. 프로필 조회 (닉네임·캠퍼스만, 수정 불가) ---------- */
+.profile-screen__card {
+  margin-top: var(--sp-2);
+}
+
+.profile-screen__nickname {
+  margin: 0 0 var(--sp-1);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.profile-screen__campus {
+  margin: 0;
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
 /* ---------- F0. 게스트 프로필 입력 (화면 정중앙, 세로 배치) ---------- */
 .profile-setup {
   flex: 1;
