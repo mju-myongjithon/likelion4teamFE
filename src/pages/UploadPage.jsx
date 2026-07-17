@@ -105,7 +105,9 @@ export default function UploadPage({ onUploaded }) {
       <div className="screen upload-screen">
         <h1 className="screen-title">오늘은 이미 분석을 완료했어요</h1>
         <p className="screen-sub">
-          오늘의 분석은 한 번만 진행돼요. 내일 다시 새로운 하루를 기록해보세요
+          오늘의 분석은 한 번만 진행돼요.
+          <br />
+          내일 다시 새로운 하루를 기록해보세요.
         </p>
       </div>
     );
