@@ -797,6 +797,49 @@
   color: var(--color-ink);
 }
 
+/* 데스크탑 알림처럼 입력창 바로 위에 뜨는 카드. 메시지 목록과 별개로 항상
+   입력창 바로 위에 붙어있도록 flex 흐름상 입력 폼 바로 앞에 둔다(오버레이 아님). */
+.icebreaker-popup {
+  position: relative;
+  flex-shrink: 0;
+  margin-bottom: var(--sp-2);
+  padding: var(--sp-3) 36px var(--sp-3) var(--sp-4);
+  border-radius: 14px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-line-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.icebreaker-popup__close {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  color: var(--color-text-faint);
+  cursor: pointer;
+}
+
+.icebreaker-popup__title {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.icebreaker-popup__question {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
 .chat-input-row {
   display: flex;
   align-items: center;
