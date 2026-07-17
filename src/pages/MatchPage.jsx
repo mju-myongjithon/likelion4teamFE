@@ -214,12 +214,9 @@ export default function MatchPage({ onGoToUpload, onDecline, onEnterChat }) {
     <div className="screen match-screen">
       <p className="eyebrow">MATCH</p>
 
-      {state === 'checking' && (
-        <>
-          <h1 className="screen-title">매칭 상태를 확인하는 중</h1>
-          <SyncCharacter />
-        </>
-      )}
+      {/* 'checking' 상태는 의도적으로 아무것도 렌더링하지 않는다 — 로컬/실서비스 모두
+          조회 응답이 워낙 빨라서 로딩 화면을 넣으면 오히려 한 프레임 반짝이는 것처럼
+          보였다. 빈 상태로 잠깐 있다가 바로 실제 상태로 넘어가는 편이 더 자연스럽다. */}
 
       {state === 'not_requested' && (
         <div className="match-state">
