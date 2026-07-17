@@ -4,6 +4,7 @@ import BottomNav from './components/BottomNav';
 import UploadPage from './pages/UploadPage';
 import AnalysisPage from './pages/AnalysisPage';
 import MatchPage from './pages/MatchPage';
+import ChatPage from './pages/ChatPage';
 import ProfilePage from './pages/ProfilePage';
 import ProfileSetupPage from './pages/ProfileSetupPage';
 import { getCurrentUserId, setCurrentUserId } from './utils/currentUser';
@@ -42,7 +43,7 @@ export default function App() {
     <div className="app-frame">
       <AppHeader />
 
-      <div className="app-content">
+      <div className={`app-content ${tab === 'chat' ? 'app-content--flush-bottom' : ''}`}>
         {tab === 'upload' && <UploadPage onUploaded={handleUploaded} />}
 
         {tab === 'analysis' && resultView === 'analysis' && (
@@ -57,8 +58,11 @@ export default function App() {
           <MatchPage
             onGoToUpload={() => setTab('upload')}
             onDecline={() => setResultView('analysis')}
+            onEnterChat={() => setTab('chat')}
           />
         )}
+
+        {tab === 'chat' && <ChatPage />}
 
         {tab === 'profile' && <ProfilePage />}
       </div>
