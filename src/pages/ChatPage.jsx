@@ -6,6 +6,37 @@ import { sendMessage, pollMessages } from '../api/chatApi';
 
 const POLL_INTERVAL_MS = 2500;
 
+// 카카오톡처럼 "오전/오후 h:mm" 형식. 시(hour)는 0으로 패딩하지 않는다(예: "오후 6:26").
+function formatTime(dateString) {
+  const d = new Date(dateString);
+  const period = d.getHours() < 12 ? '오전' : '오후';
+  const hour12 = d.getHours() % 12 === 0 ? 12 : d.getHours() % 12;
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${period} ${hour12}:${minutes}`;
+}
+
+function isSameMinute(a, b) {
+  const da = new Date(a);
+  const db = new Date(b);
+  return (
+    da.getFullYear() === db.getFullYear() &&
+    da.getMonth() === db.getMonth() &&
+    da.getDate() === db.getDate() &&
+    da.getHours() === db.getHours() &&
+    da.getMinutes() === db.getMinutes()
+  );
+}
+
+// 같은 사람이 같은 분 안에 연달아 보낸 메시지는 그 묶음의 마지막 메시지에만 시간을 표시한다
+// (카카오톡과 동일한 규칙). 다음 메시지가 없거나, 보낸 사람이 바뀌거나, 분이 바뀌면 표시한다.
+function shouldShowTime(messages, index) {
+  const current = messages[index];
+  const next = messages[index + 1];
+  if (!next) return true;
+  if (next.mine !== current.mine) return true;
+  return !isSameMinute(current.createdAt, next.createdAt);
+}
+
 // F5. 매칭 채팅 화면 — 하단 탭바의 "채팅" 탭으로 진입한다(업로드/오늘의 기록/프로필과 동급 탭).
 // matchId를 prop으로 받지 않고, 마운트 시 스스로 오늘의 매칭 상태를 조회해 CONNECTED인지·
 // 상대가 누구인지 파악한다 — 탭은 다른 탭으로 이동했다 돌아와도 항상 새로 마운트되므로,
@@ -27,6 +58,7 @@ export default function ChatPage() {
   const isMountedRef = useRef(true);
   const hasStarted = useRef(false); // StrictMode의 "마운트→클린업→마운트" 중 init()이 두 번 불리는 것만 막는다
   const listEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -105,6 +137,8 @@ export default function ChatPage() {
       // 실패 시 입력값을 지우지 않고 그대로 둬서 재전송할 수 있게 한다
     } finally {
       if (isMountedRef.current) setIsSending(false);
+      // 입력창 자체는 비활성화하지 않지만(포커스 유지를 위해), 전송 중 blur가 됐을 수 있으니 되돌려준다
+      inputRef.current?.focus();
     }
   }
 
@@ -145,15 +179,18 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="screen chat-screen">
+    <div className="chat-screen chat-screen--full">
       <div className="chat-header">
         <span className="chat-header__title">{match?.partnerNickname}</span>
       </div>
 
       <div className="chat-message-list">
-        {messages.map((m) => (
+        {messages.map((m, i) => (
           <div key={m.messageId} className={`chat-bubble-row ${m.mine ? 'is-mine' : ''}`}>
             <div className="chat-bubble">{m.content}</div>
+            {shouldShowTime(messages, i) && (
+              <span className="chat-bubble-time">{formatTime(m.createdAt)}</span>
+            )}
           </div>
         ))}
         <div ref={listEndRef} />
@@ -167,13 +204,13 @@ export default function ChatPage() {
         }}
       >
         <input
+          ref={inputRef}
           type="text"
           className="chat-input"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="메시지를 입력하세요"
           maxLength={1000}
-          disabled={isSending}
         />
         <button
           type="submit"

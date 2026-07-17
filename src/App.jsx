@@ -43,7 +43,7 @@ export default function App() {
     <div className="app-frame">
       <AppHeader />
 
-      <div className="app-content">
+      <div className={`app-content ${tab === 'chat' ? 'app-content--flush-bottom' : ''}`}>
         {tab === 'upload' && <UploadPage onUploaded={handleUploaded} />}
 
         {tab === 'analysis' && resultView === 'analysis' && (
