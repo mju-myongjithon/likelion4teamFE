@@ -430,6 +430,10 @@
   /* .match-state .btn-primary 의 padding(12px)·margin 오염을 덮어써, 두 버튼을 동일한 크기·정렬로 맞춘다 */
   margin: 0;
   padding: 16px var(--sp-5);
+  /* "매칭 수락" ↔ "수락하는 중…"처럼 로딩 중 문구 길이가 바뀌어도 줄바꿈으로 버튼 높이가
+     흔들리지 않도록 고정한다 (수락 버튼 클릭 시 화면이 미세하게 움직이던 문제) */
+  min-height: 52px;
+  white-space: nowrap;
 }
 
 /* ---------- Match score card (F3 결과 / F8 근거) ---------- */

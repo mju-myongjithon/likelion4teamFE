@@ -54,8 +54,11 @@ export default function App() {
         )}
 
         {tab === 'analysis' && resultView === 'match' && (
-  <MatchPage onGoToUpload={() => setTab('upload')} />
-)}
+          <MatchPage
+            onGoToUpload={() => setTab('upload')}
+            onDecline={() => setResultView('analysis')}
+          />
+        )}
 
         {tab === 'profile' && <ProfilePage />}
       </div>

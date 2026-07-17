@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+html {
+  /* 화면마다 내용 길이가 달라 스크롤바가 생겼다 없어졌다 하는데, 그때마다
+     #root의 가운데 정렬 기준 너비가 스크롤바 폭만큼 흔들려서 앱 프레임 전체가
+     좌우로 미세하게 움직이는 문제 방지 — 스크롤 필요 여부와 무관하게 항상
+     스크롤바 자리를 미리 확보해둔다 */
+  scrollbar-gutter: stable;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -38,7 +46,10 @@ input:focus-visible,
 .app-frame {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
+  /* min-height였을 때는 긴 화면이 뷰포트보다 커지면서 body 자체에 스크롤바가
+     생겨 위 scrollbar-gutter 대책과 별개로 레이아웃이 흔들렸다. height로 고정해
+     .app-content의 overflow-y:auto가 실제로 내부 스크롤을 담당하게 한다. */
+  height: 100vh;
   background: var(--color-bg);
   position: relative;
   border-left: 1px solid var(--color-line-soft);
@@ -84,6 +95,14 @@ input:focus-visible,
   flex-direction: column;
   overflow-y: auto;
   padding-bottom: 88px; /* bottom-nav 높이만큼 여유 */
+  /* 스크롤은 그대로 되지만(터치·트랙패드·휠 다 정상 동작), 스크롤바 자체는
+     시각적으로 숨긴다 — 모바일 앱 타깃 UI라 데스크톱 스크롤바가 어색하게 겉돈다 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* 구형 Edge/IE */
+}
+
+.app-content::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/신형 Edge */
 }
 
 .screen {

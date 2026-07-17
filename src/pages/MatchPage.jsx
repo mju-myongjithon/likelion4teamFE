@@ -47,10 +47,13 @@ function PartnerReveal({ photoUrls, tags }) {
 //   AWAITING_PARTNER → 상대 응답 대기(2b4) [GET /today 폴링]
 //   CONNECTED      → 매칭 완료(2c)       [유사도/근거 공개, 채팅은 F5]
 //   ENDED          → 매칭 종료(2d)
-//   DECLINED       → 게이트1 거부(참여 안 함)
+//
+// DECLINED(게이트1 거부)는 별도 화면 없음 — "오늘은 안 할래요"를 누르면 그 즉시
+// 이전 화면(오늘의 기록)으로 돌아가고, 나중에 다시 "오늘의 매칭 보기"로 들어와도
+// NOT_REQUESTED와 동일하게 처음 참여 확인 화면을 그대로 다시 보여준다.
 //
 // 상대 사진·태그·AI 코멘트는 백엔드 연동 완료. 남은 미구현은 채팅(F5)뿐(버튼 비활성).
-export default function MatchPage({ onGoToUpload }) {
+export default function MatchPage({ onGoToUpload, onDecline }) {
   const [state, setState] = useState('checking');
   const [match, setMatch] = useState(null);
   const [isAccepting, setIsAccepting] = useState(false); // 게이트1 수락
@@ -58,12 +61,33 @@ export default function MatchPage({ onGoToUpload }) {
   const [isChatDeciding, setIsChatDeciding] = useState(false); // 게이트2 수락/거부
   const pollTimer = useRef(null);
   const hasStarted = useRef(false);
+  const stateRef = useRef(state); // 언마운트 클린업이 최신 state를 읽을 수 있도록 동기화
+  const isMountedRef = useRef(true); // 언마운트 후 늦게 도착한 응답이 상태를 건드리지 않도록 막는 가드
 
   useEffect(() => {
-    if (hasStarted.current) return;
-    hasStarted.current = true;
-    checkInitialStatus();
-    return () => clearTimeout(pollTimer.current);
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    // StrictMode(개발 모드)는 마운트를 "마운트→클린업→마운트"로 한 번 더 시뮬레이션한다.
+    // hasStarted는 그 두 번째 마운트에서 checkInitialStatus를 또 부르지 않게만 막아야 하고,
+    // 클린업 함수 자체는 매 마운트마다 항상 새로 등록돼야 한다 — 그래야 실제로 화면을
+    // 벗어날 때(진짜 마지막 마운트의 클린업) clearTimeout/취소 로직이 확실히 실행된다.
+    // isMountedRef도 같은 이유로 매 마운트마다 다시 켜줘야 한다.
+    isMountedRef.current = true;
+    if (!hasStarted.current) {
+      hasStarted.current = true;
+      checkInitialStatus();
+    }
+    return () => {
+      isMountedRef.current = false;
+      clearTimeout(pollTimer.current);
+      // 매칭중(PENDING)에 화면을 벗어나면 게이트1 수락을 취소한다.
+      // declineMatch는 이미 매칭이 성사된 뒤라면 안전하게 무시하므로(멱등) 그대로 재사용한다.
+      if (stateRef.current === 'pending') {
+        declineMatch().catch(() => {}); // 화면은 이미 떠났으니 실패해도 무시
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -78,6 +102,7 @@ export default function MatchPage({ onGoToUpload }) {
 
   // 응답 status를 화면 상태로 매핑하고, 필요한 폴링을 건다.
   function applyStatus(data) {
+    if (!isMountedRef.current) return; // 화면을 벗어난 뒤 늦게 온 응답은 무시 — 다음 폴링도 걸지 않는다
     clearTimeout(pollTimer.current);
     const status = data.status;
 
@@ -99,10 +124,6 @@ export default function MatchPage({ onGoToUpload }) {
     }
     if (status === 'ENDED') {
       setState('ended');
-      return;
-    }
-    if (status === 'DECLINED') {
-      setState('declined');
       return;
     }
     if (status === 'PENDING') {
@@ -132,6 +153,7 @@ export default function MatchPage({ onGoToUpload }) {
   }
 
   function handleError(err) {
+    if (!isMountedRef.current) return; // 화면을 벗어난 뒤 늦게 온 에러 응답도 동일하게 무시
     if (err.code === 'ANALYSIS_NOT_FOUND') {
       setState('no-analysis');
       return;
@@ -147,18 +169,20 @@ export default function MatchPage({ onGoToUpload }) {
     } catch (err) {
       handleError(err);
     } finally {
-      setIsAccepting(false);
+      if (isMountedRef.current) setIsAccepting(false);
     }
   }
 
+  // 거부는 화면에 결과를 보여주지 않고, 서버에 기록만 남긴 뒤 바로 이전 화면(오늘의 기록)으로 돌아간다.
   async function handleDecline() {
     setIsDeclining(true);
     try {
-      applyStatus(await declineMatch());
+      await declineMatch();
+      onDecline();
     } catch (err) {
       handleError(err);
     } finally {
-      setIsDeclining(false);
+      if (isMountedRef.current) setIsDeclining(false);
     }
   }
 
@@ -170,7 +194,7 @@ export default function MatchPage({ onGoToUpload }) {
     } catch (err) {
       handleError(err);
     } finally {
-      setIsChatDeciding(false);
+      if (isMountedRef.current) setIsChatDeciding(false);
     }
   }
 
@@ -181,7 +205,7 @@ export default function MatchPage({ onGoToUpload }) {
     } catch (err) {
       handleError(err);
     } finally {
-      setIsChatDeciding(false);
+      if (isMountedRef.current) setIsChatDeciding(false);
     }
   }
 
@@ -329,21 +353,6 @@ export default function MatchPage({ onGoToUpload }) {
           <p className="screen-sub">
             이번 매칭은 대화로 이어지지 않았어요. 내일 다시 새로운 하루를 기록해보세요.
           </p>
-        </div>
-      )}
-
-      {state === 'declined' && (
-        <div className="match-state">
-          <h1 className="screen-title">오늘은 매칭을 쉬어가요</h1>
-          <p className="screen-sub">마음이 바뀌면 지금 다시 참여할 수 있어요</p>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={handleAccept}
-            disabled={isAccepting}
-          >
-            {isAccepting ? '참여하는 중…' : '매칭 참여하기'}
-          </button>
         </div>
       )}
 
