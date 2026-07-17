@@ -5,7 +5,7 @@ export default function AppHeader() {
         <span className="app-header__logo">Sync.day</span>
         <span className="app-header__tag">TODAY</span>
       </div>
-      <p className="app-header__subtitle">오늘의 순간을 기록하세요</p>
+      <p className="app-header__subtitle">오늘의 순간을 캠퍼스너머로</p>
     </header>
   );
 }

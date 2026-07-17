@@ -31,7 +31,7 @@ export default function ProfileSetupPage({ onComplete }) {
     <div className="profile-setup">
       <form className="profile-setup__card" onSubmit={handleSubmit}>
         <span className="profile-setup__logo">Sync.day</span>
-        <p className="profile-setup__subtitle">오늘의 순간을 기록하세요</p>
+        <p className="profile-setup__subtitle">오늘의 순간을 캠퍼스너머로</p>
 
         <div className="profile-setup__row">
           <input
