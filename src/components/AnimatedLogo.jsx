@@ -15,14 +15,48 @@ import {
 // 로그인(F0) 화면 전용 최초 진입 애니메이션. SyncCharacter.jsx 로딩 애니메이션과 같은 방식
 // (clipPath로 두 원의 교집합만 오려내 겹침색을 채우는 방식)을 그대로 가져오되, 여기선 루프
 // 없이 한 번만: 양옆 화면 밖에서 원 두 개가 날아와 SyncIcon과 같은 최종 위치(50% 겹침)에
-// 안착하고, 겹치는 순간 색이 서서히 나타난다. 텍스트는 살짝 왼쪽에서 페이드인하며 제자리로.
+// 안착하며 겹치는 색이 서서히 나타나고, 안착 직후 로딩 애니메이션과 같은 방식으로 잠깐
+// "부르르" 떨다가 멎는다. 텍스트는 살짝 왼쪽에서 페이드인하며 제자리로 이동해 안착한다.
 const FLY_DISTANCE = R * 4;
 const START_LEFT_CX = LEFT_CX - FLY_DISTANCE;
 const START_RIGHT_CX = RIGHT_CX + FLY_DISTANCE;
 
-const FLIGHT_TRANSITION = { duration: 1, ease: 'easeOut' };
-const OVERLAP_FADE_TRANSITION = { duration: 0.5, delay: 0.5, ease: 'easeOut' };
-const TEXT_TRANSITION = { duration: 0.9, ease: 'easeOut' };
+// 속도를 20% 늦춘다(= 소요 시간을 1 / 0.8 = 1.25배로 늘린다). 아래 모든 duration·delay는
+// 이 배율을 거친 뒤의 최종 값이다.
+const SLOWDOWN = 1.25;
+
+// 날아와 도착하기까지(부르르 시작 전)와, 도착 후 부르르 떠는 구간의 기준 길이(초).
+const BASE_FLIGHT_DURATION = 1;
+const BASE_WOBBLE_DURATION = 0.45;
+const BASE_TOTAL_DURATION = BASE_FLIGHT_DURATION + BASE_WOBBLE_DURATION;
+const TOTAL_DURATION = BASE_TOTAL_DURATION * SLOWDOWN;
+// 전체 구간(0~1) 중 도착 시점의 비율 — 배속과 무관하게 항상 같은 지점이다(분자·분모가 같이 늘어나므로).
+const LANDED_AT = BASE_FLIGHT_DURATION / BASE_TOTAL_DURATION;
+
+// 도착한 뒤 짧게 흔들리는 폭(SyncCharacter.jsx의 WOBBLE을 이 아이콘 크기(R=40)에 맞게 축소).
+// 첫 항(도착)·마지막 항(정착)은 흔들림 없이 0으로 시작/종료한다.
+const WOBBLE = [
+  { dx: 0, dy: 0 },
+  { dx: 2, dy: -1.5 },
+  { dx: -2, dy: 1.5 },
+  { dx: 1.5, dy: -2 },
+  { dx: -1.5, dy: 1 },
+  { dx: 0, dy: 0 },
+];
+const WOBBLE_TIMES = WOBBLE.map((_, i) => LANDED_AT + ((1 - LANDED_AT) * i) / (WOBBLE.length - 1));
+
+const TIMES = [0, ...WOBBLE_TIMES];
+// 날아오는 구간은 easeOut, 도착 후 부르르 구간은 SyncCharacter.jsx와 같은 이유로 linear
+// (부드럽게 스윙하지 않고 딱딱 끊어지듯 떨리게).
+const EASES = ['easeOut', ...Array(WOBBLE.length - 1).fill('linear')];
+
+const CY_KEYFRAMES = [CY, ...WOBBLE.map(({ dy }) => CY + dy)];
+const LEFT_CX_KEYFRAMES = [START_LEFT_CX, ...WOBBLE.map(({ dx }) => LEFT_CX + dx)];
+const RIGHT_CX_KEYFRAMES = [START_RIGHT_CX, ...WOBBLE.map(({ dx }) => RIGHT_CX + dx)];
+const OVERLAP_OPACITY_KEYFRAMES = [0, ...WOBBLE.map(() => 1)];
+
+const FLIGHT_TRANSITION = { duration: TOTAL_DURATION, ease: EASES, times: TIMES };
+const TEXT_TRANSITION = { duration: 0.9 * SLOWDOWN, ease: 'easeOut' };
 
 export default function AnimatedLogo() {
   return (
@@ -36,44 +70,40 @@ export default function AnimatedLogo() {
         <defs>
           <clipPath id="profile-logo-overlap-clip">
             <motion.circle
-              cy={CY}
               r={R}
-              initial={{ cx: START_LEFT_CX }}
-              animate={{ cx: LEFT_CX }}
+              initial={{ cx: START_LEFT_CX, cy: CY }}
+              animate={{ cx: LEFT_CX_KEYFRAMES, cy: CY_KEYFRAMES }}
               transition={FLIGHT_TRANSITION}
             />
           </clipPath>
         </defs>
 
-        {/* 겹치는 영역: 오른쪽 원과 같이 날아오되 왼쪽 원 모양으로 잘라내 교집합만 남긴다 */}
+        {/* 겹치는 영역: 오른쪽 원과 같이 움직이되 왼쪽 원 모양으로 잘라내 교집합만 남긴다 */}
         <motion.circle
-          cy={CY}
           r={R}
           fill={OVERLAP_COLOR}
           clipPath="url(#profile-logo-overlap-clip)"
-          initial={{ cx: START_RIGHT_CX, opacity: 0 }}
-          animate={{ cx: RIGHT_CX, opacity: 1 }}
-          transition={{ cx: FLIGHT_TRANSITION, opacity: OVERLAP_FADE_TRANSITION }}
+          initial={{ cx: START_RIGHT_CX, cy: CY, opacity: 0 }}
+          animate={{ cx: RIGHT_CX_KEYFRAMES, cy: CY_KEYFRAMES, opacity: OVERLAP_OPACITY_KEYFRAMES }}
+          transition={FLIGHT_TRANSITION}
         />
 
         <motion.circle
-          cy={CY}
           r={R}
           fill="none"
           stroke={WHITE}
           strokeWidth={STROKE_WIDTH}
-          initial={{ cx: START_LEFT_CX }}
-          animate={{ cx: LEFT_CX }}
+          initial={{ cx: START_LEFT_CX, cy: CY }}
+          animate={{ cx: LEFT_CX_KEYFRAMES, cy: CY_KEYFRAMES }}
           transition={FLIGHT_TRANSITION}
         />
         <motion.circle
-          cy={CY}
           r={R}
           fill="none"
           stroke={SKY_BLUE}
           strokeWidth={STROKE_WIDTH}
-          initial={{ cx: START_RIGHT_CX }}
-          animate={{ cx: RIGHT_CX }}
+          initial={{ cx: START_RIGHT_CX, cy: CY }}
+          animate={{ cx: RIGHT_CX_KEYFRAMES, cy: CY_KEYFRAMES }}
           transition={FLIGHT_TRANSITION}
         />
       </svg>
