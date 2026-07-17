@@ -48,10 +48,22 @@
   text-align: center;
 }
 
+.profile-setup__logo-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.profile-setup__logo-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
 .profile-setup__logo {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 56px;
+  font-size: 44px;
   letter-spacing: -0.01em;
   color: var(--color-text);
 }
