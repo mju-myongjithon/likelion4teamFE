@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { RefreshCw, Send } from 'lucide-react';
+import { RefreshCw, Send, X } from 'lucide-react';
 import SyncCharacter from '../components/SyncCharacter';
 import { checkTodayMatch } from '../api/matchApi';
 import { sendMessage, pollMessages } from '../api/chatApi';
 
 const POLL_INTERVAL_MS = 2500;
+
+// 이 매칭에서 아이스브레이킹 팝업을 이미 닫았는지를 sessionStorage에 기록한다.
+// ChatPage는 탭을 전환할 때마다 언마운트되므로(state가 날아감), "닫았으면 탭을
+// 전환했다 돌아와도 계속 닫혀있게" 하려면 컴포넌트 바깥의 저장소가 필요하다.
+function icebreakerDismissKey(matchId) {
+  return `syncday:icebreaker-dismissed:${matchId}`;
+}
 
 // 카카오톡처럼 "오전/오후 h:mm" 형식. 시(hour)는 0으로 패딩하지 않는다(예: "오후 6:26").
 function formatTime(dateString) {
@@ -51,6 +58,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [showIcebreaker, setShowIcebreaker] = useState(false);
 
   const matchIdRef = useRef(null);
   const lastMessageIdRef = useRef(0);
@@ -88,6 +96,8 @@ export default function ChatPage() {
       }
       matchIdRef.current = data.match.matchId;
       setMatch(data.match);
+      const alreadyDismissed = sessionStorage.getItem(icebreakerDismissKey(data.match.matchId)) === '1';
+      setShowIcebreaker(Boolean(data.match.icebreakerQuestion) && !alreadyDismissed);
 
       const history = await pollMessages(data.match.matchId);
       if (!isMountedRef.current) return;
@@ -122,6 +132,13 @@ export default function ChatPage() {
     } finally {
       if (isMountedRef.current) schedulePoll();
     }
+  }
+
+  function handleDismissIcebreaker() {
+    if (matchIdRef.current) {
+      sessionStorage.setItem(icebreakerDismissKey(matchIdRef.current), '1');
+    }
+    setShowIcebreaker(false);
   }
 
   async function handleSend() {
@@ -195,6 +212,21 @@ export default function ChatPage() {
         ))}
         <div ref={listEndRef} />
       </div>
+
+      {showIcebreaker && match?.icebreakerQuestion && (
+        <div className="icebreaker-popup">
+          <button
+            type="button"
+            className="icebreaker-popup__close"
+            onClick={handleDismissIcebreaker}
+            aria-label="닫기"
+          >
+            <X size={14} strokeWidth={2} />
+          </button>
+          <p className="icebreaker-popup__title">✨ AI가 생성한 오늘의 아이스브레이킹</p>
+          <p className="icebreaker-popup__question">{match.icebreakerQuestion}</p>
+        </div>
+      )}
 
       <form
         className="chat-input-row"
