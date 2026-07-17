@@ -52,8 +52,9 @@ function PartnerReveal({ photoUrls, tags }) {
 // 이전 화면(오늘의 기록)으로 돌아가고, 나중에 다시 "오늘의 매칭 보기"로 들어와도
 // NOT_REQUESTED와 동일하게 처음 참여 확인 화면을 그대로 다시 보여준다.
 //
-// 상대 사진·태그·AI 코멘트는 백엔드 연동 완료. 남은 미구현은 채팅(F5)뿐(버튼 비활성).
-export default function MatchPage({ onGoToUpload, onDecline }) {
+// "채팅 시작하기"는 onEnterChat으로 하단 "채팅" 탭 전환만 트리거하고, matchId는 넘기지 않는다 —
+// ChatPage가 마운트 시 스스로 오늘의 매칭 상태를 조회해 CONNECTED인지 파악한다.
+export default function MatchPage({ onGoToUpload, onDecline, onEnterChat }) {
   const [state, setState] = useState('checking');
   const [match, setMatch] = useState(null);
   const [isAccepting, setIsAccepting] = useState(false); // 게이트1 수락
@@ -332,13 +333,11 @@ export default function MatchPage({ onGoToUpload, onDecline }) {
             </p>
           </div>
 
-          {/* TODO(F5 채팅): 채팅(2e)은 F5 담당. connectedAt 신호로 F5가 방을 열면 여기서 이동 */}
           <div className="match-screen__footer">
-            <button type="button" className="btn-primary" disabled title="채팅(F5) 준비 중">
+            <button type="button" className="btn-primary" onClick={onEnterChat}>
               <MessageCircle size={16} strokeWidth={2} />
               채팅 시작하기
             </button>
-            <p className="match-hint">채팅 기능(F5)은 곧 추가돼요</p>
           </div>
         </>
       )}

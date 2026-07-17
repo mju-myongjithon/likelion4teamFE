@@ -1,8 +1,9 @@
-import { ArrowUp, Sparkles, Circle } from 'lucide-react';
+import { ArrowUp, Sparkles, MessageCircle, Circle } from 'lucide-react';
 
 const TABS = [
   { id: 'upload', label: '업로드', Icon: ArrowUp },
   { id: 'analysis', label: '오늘의 기록', Icon: Sparkles },
+  { id: 'chat', label: '채팅', Icon: MessageCircle },
   { id: 'profile', label: '프로필', Icon: Circle },
 ];
 

@@ -717,6 +717,111 @@
   font-size: 12px;
   color: var(--color-text-faint);
 }
+
+/* ---------- F5 채팅 (하단 "채팅" 탭) ---------- */
+.chat-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chat-screen--centered {
+  justify-content: center;
+}
+
+.chat-header {
+  padding: 0 0 var(--sp-4);
+  border-bottom: 1px solid var(--color-line-soft);
+  margin-bottom: var(--sp-2);
+}
+
+.chat-header__title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.chat-message-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  scrollbar-width: none;
+}
+
+.chat-message-list::-webkit-scrollbar {
+  display: none;
+}
+
+.chat-bubble-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.chat-bubble-row.is-mine {
+  justify-content: flex-end;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.chat-bubble-row.is-mine .chat-bubble {
+  background: var(--color-accent);
+  color: var(--color-ink);
+}
+
+.chat-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-top: var(--sp-3);
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px var(--sp-4);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-line-soft);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.chat-input:focus-visible {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 2px;
+}
+
+.chat-send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.chat-send-btn:disabled {
+  background: var(--color-bg-elevated-2);
+  color: var(--color-text-faint);
+  cursor: not-allowed;
+}
+
 /* ---------- Feature tags (F2 — 시간대/분위기/색감) ---------- */
 .feature-tags {
   display: flex;
