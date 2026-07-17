@@ -1,6 +1,5 @@
 .upload-screen__footer {
-  margin-top: auto;
-  padding-top: var(--sp-2);
+  margin-top: var(--sp-6);
 }
 
 .analysis-screen__footer {
@@ -28,7 +27,7 @@
 .profile-setup__logo {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 60px;
+  font-size: 56px;
   letter-spacing: -0.01em;
   color: var(--color-text);
 }

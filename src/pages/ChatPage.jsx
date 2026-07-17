@@ -110,7 +110,7 @@ export default function ChatPage() {
 
   if (state === 'checking') {
     return (
-      <div className="screen chat-screen chat-screen--centered">
+      <div className="screen chat-screen">
         <p className="eyebrow">CHAT</p>
         <h1 className="screen-title">채팅방을 여는 중</h1>
         <SyncCharacter />
@@ -120,30 +120,26 @@ export default function ChatPage() {
 
   if (state === 'not-connected') {
     return (
-      <div className="screen chat-screen chat-screen--centered">
+      <div className="screen chat-screen">
         <p className="eyebrow">CHAT</p>
-        <div className="match-state">
-          <h1 className="screen-title">아직 채팅할 상대가 없어요</h1>
-          <p className="screen-sub">
-            매칭이 성사되고 서로 채팅을 수락하면 여기서 대화할 수 있어요
-          </p>
-        </div>
+        <h1 className="screen-title">아직 채팅할 상대가 없어요</h1>
+        <p className="screen-sub">
+          매칭이 성사되고 서로 채팅을 수락하면 여기서 대화할 수 있어요
+        </p>
       </div>
     );
   }
 
   if (state === 'error') {
     return (
-      <div className="screen chat-screen chat-screen--centered">
+      <div className="screen chat-screen">
         <p className="eyebrow">CHAT</p>
-        <div className="match-state">
-          <h1 className="screen-title">채팅을 불러오지 못했어요</h1>
-          <p className="screen-sub">잠시 후 다시 시도해주세요</p>
-          <button type="button" className="btn-primary" onClick={init}>
-            <RefreshCw size={16} strokeWidth={2} />
-            다시 시도하기
-          </button>
-        </div>
+        <h1 className="screen-title">채팅을 불러오지 못했어요</h1>
+        <p className="screen-sub">잠시 후 다시 시도해주세요</p>
+        <button type="button" className="btn-primary" onClick={init}>
+          <RefreshCw size={16} strokeWidth={2} />
+          다시 시도하기
+        </button>
       </div>
     );
   }

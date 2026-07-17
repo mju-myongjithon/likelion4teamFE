@@ -726,10 +726,6 @@
   min-height: 0;
 }
 
-.chat-screen--centered {
-  justify-content: center;
-}
-
 .chat-header {
   padding: 0 0 var(--sp-4);
   border-bottom: 1px solid var(--color-line-soft);
