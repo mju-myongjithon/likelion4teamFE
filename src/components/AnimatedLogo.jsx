@@ -105,14 +105,26 @@ export default function AnimatedLogo() {
         />
       </svg>
 
-      <motion.span
-        className="profile-setup__logo"
-        initial={{ opacity: 0, x: '-30%' }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={TEXT_TRANSITION}
-      >
-        Sync.day
-      </motion.span>
+      {/* "."을 기준으로 두 조각으로 나눠, AnimatedSubtitle과 같은 방식(양옆에 흩어진 채
+          페이드인하며 가운데로 모여 안착)으로 움직인다. */}
+      <span className="profile-setup__logo">
+        <motion.span
+          style={{ display: 'inline-block' }}
+          initial={{ opacity: 0, x: '-50%' }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={TEXT_TRANSITION}
+        >
+          Sync.
+        </motion.span>
+        <motion.span
+          style={{ display: 'inline-block' }}
+          initial={{ opacity: 0, x: '50%' }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={TEXT_TRANSITION}
+        >
+          day
+        </motion.span>
+      </span>
     </div>
   );
 }
