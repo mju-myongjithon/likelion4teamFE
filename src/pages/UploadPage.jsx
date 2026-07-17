@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Info } from 'lucide-react';
 import PhotoGrid from '../components/PhotoGrid';
 import PrivacyToggle from '../components/PrivacyToggle';
 import { uploadPhotos } from '../api/photoApi';
@@ -74,6 +75,13 @@ export default function UploadPage({ onUploaded }) {
         onRemove={handleRemove}
         onSlotClick={() => inputRef.current?.click()}
       />
+
+      {isPrivacyMode && photos.length > 0 && (
+        <div className="preview-notice">
+          <Info size={14} strokeWidth={2} />
+          <span>지금 보이는 흐림은 미리보기예요. 업로드하면 얼굴만 자동으로 가려져요</span>
+        </div>
+      )}
 
       <input
         ref={inputRef}
