@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { createGuestUser } from '../api/userApi';
+import SyncIcon from '../components/SyncIcon';
 
 // F0. 사진 업로드 전에 뜨는 게스트 프로필 입력 화면.
 // 로그인/회원가입이 아니라 닉네임·캠퍼스만 받아 그 세션 동안만 쓸 유저를 만든다.
@@ -30,7 +31,10 @@ export default function ProfileSetupPage({ onComplete }) {
   return (
     <div className="profile-setup">
       <form className="profile-setup__card" onSubmit={handleSubmit}>
-        <span className="profile-setup__logo">Sync.day</span>
+        <div className="profile-setup__logo-row">
+          <SyncIcon className="profile-setup__logo-icon" />
+          <span className="profile-setup__logo">Sync.day</span>
+        </div>
         <p className="profile-setup__subtitle">오늘의 순간을 캠퍼스너머로</p>
 
         <div className="profile-setup__row">

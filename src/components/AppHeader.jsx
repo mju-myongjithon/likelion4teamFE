@@ -1,7 +1,10 @@
+import SyncIcon from './SyncIcon';
+
 export default function AppHeader() {
   return (
     <header className="app-header">
       <div className="app-header__row">
+        <SyncIcon className="app-header__logo-icon" />
         <span className="app-header__logo">Sync.day</span>
         <span className="app-header__tag">TODAY</span>
       </div>
